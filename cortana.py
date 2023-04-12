@@ -101,7 +101,7 @@ class cortana():
     
     def talk_with_cortana(self, *args, **kwargs):
         
-        text_start = "Hello, I am Cortana, your personal IA assistant, how can I help you?"
+        text_start = "Hello, I am Cortana, your personal AI assistant, how can I help you?"
         text_idle = "I am putting myself into IDLE, wake me, when you need me."
         text_close = "I am shutting down my systems, bye"
         
@@ -123,7 +123,7 @@ class cortana():
     
     def reset_messages(self, role=None):
         if role is None:
-            role = "You are a helpful IA assistant, resembling Cortana in the Halo game"
+            role = "You are a helpful AI assistant, resembling Cortana in the Halo game"
         self.messages=[{'role': "system", "content":role}]
     
 # %% Test
@@ -132,4 +132,4 @@ name = "gpt-3.5-turbo"
 my_cortana = cortana(name)
 # message = "How far did human went into space?"
 # my_cortana.listen_cortana(message, max_tokens=50)
-my_cortana.talk_with_cortana(max_tokens=100, option_talk='gtts')
+my_cortana.talk_with_cortana(max_tokens=100, option_talk='pyttsx3')
