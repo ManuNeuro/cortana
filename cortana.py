@@ -5,6 +5,9 @@ from audio_to_text import speech_to_text_google, wait_for_call
 
 class cortana():
     def __init__(self, model_name, role=None, api_key=None):
+        print('++++++++++++++++++++++++++++++++++++')
+        print('             Cortana ')
+        print('++++++++++++++++++++++++++++++++++++')
         if api_key is None:
             from api_key import secret_key
             openai.api_key = secret_key
@@ -56,9 +59,11 @@ class cortana():
         
         # Print
         if print_:
+            print('----------------------')
             print(f'Me: {self.last_input}')
+            print('----------------------')
             print(f'Cortana: {self.last_answer}')
-            print('------------------')
+            print('****************************')
     
     def voice_cortana(self, text, option_talk='pyttsx3', **kwargs):
         if self.option_talk is None:
@@ -109,6 +114,8 @@ class cortana():
             if text is None:
                 self.voice_cortana(text_idle)
                 command = wait_for_call('Cortana', 'Shut Down')
+                if command:
+                    self.voice_cortana('Yes?')
         self.voice_cortana(text_close)
 
     def show_log(self):
