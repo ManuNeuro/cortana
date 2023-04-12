@@ -132,4 +132,4 @@ name = "gpt-3.5-turbo"
 my_cortana = cortana(name)
 # message = "How far did human went into space?"
 # my_cortana.listen_cortana(message, max_tokens=50)
-my_cortana.talk_with_cortana(max_tokens=100)
+my_cortana.talk_with_cortana(max_tokens=100, option_talk='gtts')
