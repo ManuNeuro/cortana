@@ -85,7 +85,7 @@ class cortana():
     def cortana_listen(self):
         success=False
         counter=0
-        while not success and counter<3:
+        while not success and counter<2:
             counter+=1 # Increment counter
             response = speech_to_text_google()
             success = response['success']
@@ -132,4 +132,4 @@ name = "gpt-3.5-turbo"
 my_cortana = cortana(name)
 # message = "How far did human went into space?"
 # my_cortana.listen_cortana(message, max_tokens=50)
-my_cortana.talk_with_cortana(max_tokens=100, option_talk='pyttsx3')
+my_cortana.talk_with_cortana(max_tokens=250, option_talk='pyttsx3')

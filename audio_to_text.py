@@ -21,9 +21,9 @@ def wait_for_call(key_start, key_end):
             audio = r.listen(source)
             try:
                 text = r.recognize_google(audio)
-                if text.lower() in key_start.lower():
+                if key_start.lower() in text.lower():
                     return True
-                if text.lower() in key_end.lower():
+                if key_end.lower() in text.lower():
                     return False
             except Exception as e:
                 pass
@@ -33,7 +33,7 @@ def speech_to_text_sr():
     recognizer = sr.Recognizer()
 
     with sr.Microphone() as source:
-        print("Listening...")
+        print("I am listening...")
         audio = recognizer.listen(source)
 
     try:
