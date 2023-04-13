@@ -138,10 +138,6 @@ class cortana():
     
 # %% Test
 
-# https://github.com/Uberi/speech_recognition/blob/master/reference/pocketsphinx.rst
-
 name = "gpt-3.5-turbo"
-my_cortana = cortana(name, language='french') 
-# message = "How far did human went into space?"
-# my_cortana.listen_cortana(message, max_tokens=50)
+my_cortana = cortana(name, language='english') 
 my_cortana.talk_with_cortana(max_tokens=100, option_talk='gtts')
