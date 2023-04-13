@@ -96,6 +96,7 @@ class cortana():
         counter=0
         while not success and counter<2:
             counter+=1 # Increment counter
+            print(self.answers['listening'])
             response = speech_to_text_google(language)
             success = response['success']
             if success:
@@ -114,13 +115,16 @@ class cortana():
             language = 'en-US'
         elif self.language == 'french':
             language = 'fr-FR'
+            # For french you must choose google to-text-speech
+            if kwargs.get('option_talk', 'gtts') != 'gtts':
+                kwargs['option_talk'] = 'gtts'
         
         self.voice_cortana(self.answers['text_start'], **kwargs)
         command = True
         while command:
             text, success = self.cortana_listen()
             if text is not None and success:
-                self.listen_cortana(text, *args, **kwargs)
+                self.listen_cortana(text, *args, **kwargs)            
             if text is None:
                 self.voice_cortana(self.answers['text_idle'], **kwargs)
                 command = wait_for_call('Cortana', self.answers['quit'], language)

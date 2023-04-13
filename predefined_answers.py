@@ -11,16 +11,18 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                  'text_close':"I am shutting down my systems, bye",
                                  'role':"You are a helpful AI assistant, resembling Cortana in the Halo game, pretend that your name is Cortana",
                                  'response':"yes",
-                                 'language':'en-EN',
+                                 'language':'en-US',
                                  'quit':'Shut Down',
-                                 'pronoun':'Me'},
+                                 'pronoun':'Me',
+                                 'listening':"I am listening...",},
                     'french':{'error':"Désolé, je n'ai pas compris votre question.",
                               'text_start':"Bonjour, je suis cortana, votre assistant intelligent personnel, comment puis-je vous aider?",
                               'text_idle':"Je met mon système en veille, réveillez-moi, quand vous avez besoin.",
                               'text_close':"Je termine mon protocole, au revoir",
                               'role':"Tu es un assistant IA, qui ressemble à Cortana dans le jeu Halo, prétend que ton nom est Cortana",
                               'response':'Oui',
-                              'language':'en-FR',
+                              'language':'fr-FR',
                               'quit':'Fermeture',
-                              'pronoun':'Moi'}
+                              'pronoun':'Moi',
+                              'listening':"J'écoute..."}
                     }

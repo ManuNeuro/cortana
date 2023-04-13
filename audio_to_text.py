@@ -9,25 +9,34 @@ import numpy as np
 import pyaudio
 import speech_recognition as sr
 
+
+idle_english = lambda key_start, key_end:print(f"============================================== \
+                                               Idle state, say \'{key_start}\' to activate me...\n   \
+                                               Or, say \'{key_end}\' to deactivate me. \
+                                               ==============================================")
+idle_french = lambda key_start, key_end:print(f"============================================== \
+                                              État de veille, dites \'{key_start}\' pour me réveiller...\n \
+                                              Ou dites \'{key_end}\' pour me désactiver. \
+                                              ==============================================")
+                                        
 def wait_for_call(key_start, key_end, language):
     r = sr.Recognizer()
-
+    
     with sr.Microphone() as source:
-        print('==============================================')
-        print(f'Idle state, say \'{key_start}\' to activate me...\n')
-        print(f'Or, say \'{key_end}\' to deactivate me.')
-        print('==============================================')
+        if 'en' in language:
+            idle_english(key_start, key_end)
+        elif 'fr' in language:
+            idle_french(key_start, key_end)
         while True: 
             audio = r.listen(source)
             try:
-                text = r.recognize_google(audio, language)
+                text = r.recognize_google(audio, language=language)
                 if key_start.lower() in text.lower():
                     return True
                 if key_end.lower() in text.lower():
                     return False
             except Exception as e:
-                pass
-                # print('Please speak again.')
+                print('Command not recognized.')
 
 def speech_to_text_sr():
     recognizer = sr.Recognizer()
@@ -48,7 +57,6 @@ def speech_to_text_google(language):
     recognizer = sr.Recognizer()
 
     with sr.Microphone() as source:
-        print("I am listening...")
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source)
 
@@ -59,9 +67,6 @@ def speech_to_text_google(language):
         "transcription": None
     }
 
-    # try recognizing the speech in the recording
-    # if a RequestError or UnknownValueError exception is caught,
-    #     update the response object accordingly
     try:
         response["transcription"] = recognizer.recognize_google(audio, language=language)
     except sr.RequestError:
