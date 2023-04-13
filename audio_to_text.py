@@ -9,7 +9,7 @@ import numpy as np
 import pyaudio
 import speech_recognition as sr
 
-def wait_for_call(key_start, key_end):
+def wait_for_call(key_start, key_end, language):
     r = sr.Recognizer()
 
     with sr.Microphone() as source:
@@ -20,7 +20,7 @@ def wait_for_call(key_start, key_end):
         while True: 
             audio = r.listen(source)
             try:
-                text = r.recognize_google(audio)
+                text = r.recognize_google(audio, language)
                 if key_start.lower() in text.lower():
                     return True
                 if key_end.lower() in text.lower():
@@ -44,7 +44,7 @@ def speech_to_text_sr():
     except sr.RequestError as e:
         print(f"Error: {e}")
 
-def speech_to_text_google():
+def speech_to_text_google(language):
     recognizer = sr.Recognizer()
 
     with sr.Microphone() as source:
@@ -63,7 +63,7 @@ def speech_to_text_google():
     # if a RequestError or UnknownValueError exception is caught,
     #     update the response object accordingly
     try:
-        response["transcription"] = recognizer.recognize_google(audio)
+        response["transcription"] = recognizer.recognize_google(audio, language=language)
     except sr.RequestError:
         # API was unreachable or unresponsive
         response["success"] = False

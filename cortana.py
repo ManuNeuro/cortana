@@ -2,9 +2,10 @@ import os
 import openai
 from text_to_audio import text_to_speech_pyttsx3, text_to_speech_gtts
 from audio_to_text import speech_to_text_google, wait_for_call
+from predefined_answers import predefined_answers
 
 class cortana():
-    def __init__(self, model_name, role=None, api_key=None):
+    def __init__(self, model_name,  language='english', role=None, api_key=None,):
         print('++++++++++++++++++++++++++++++++++++')
         print('             Cortana ')
         print('++++++++++++++++++++++++++++++++++++')
@@ -16,15 +17,16 @@ class cortana():
         # Model to use
         self.model_name = model_name
         
-        # Initialize 
-        self.reset_messages(role)
-        self.log = None
-
         # Option of voice
         self.option_talk = None
         self.name = None
-        self.language = None
-        
+        self.language = language
+
+        # Initialize 
+        self.answers = predefined_answers[language]
+        self.reset_messages(role)
+        self.log = None
+
 
     @staticmethod
     def list_model():
@@ -60,7 +62,8 @@ class cortana():
         # Print
         if print_:
             print('----------------------')
-            print(f'Me: {self.last_input}')
+            pronoun = self.answers['pronoun']
+            print(f'{pronoun}: {self.last_input}')
             print('----------------------')
             print(f'Cortana: {self.last_answer}')
             print('****************************')
@@ -68,31 +71,37 @@ class cortana():
     def voice_cortana(self, text, option_talk='pyttsx3', **kwargs):
         if self.option_talk is None:
             self.option_talk = option_talk
+            
         if self.option_talk=="pyttsx3":
             if self.name is None:
                 self.name = kwargs.get('name', 'Zira')
-            self.language = 'en'
             text_to_speech_pyttsx3(text, self.name)
         elif self.option_talk=="gtts":
-            if self.language is None:
-                self.language = kwargs.get('language', 'en')
-            text_to_speech_gtts(text, self.language)
+            if self.language == 'english':
+                language = 'en'
+            elif self.language == 'french':
+                language = 'fr'
+            text_to_speech_gtts(text, language=language)
     
     def listen_cortana(self, *args, option_talk="pyttsx3", **kwargs):
         self.prompt(*args, **kwargs)
         self.voice_cortana(self.last_answer, option_talk, **kwargs)
     
     def cortana_listen(self):
+        if self.language == 'english':
+            language = 'en-US'
+        elif self.language == 'french':
+            language = 'fr-FR'
         success=False
         counter=0
         while not success and counter<2:
             counter+=1 # Increment counter
-            response = speech_to_text_google()
+            response = speech_to_text_google(language)
             success = response['success']
             if success:
                 text = response['transcription']
             else:
-                text = "Sorry, I did not understood your request."
+                text = self.answers['error']
                 self.voice_cortana(text)
                 text = None
             if response['error'] is not None:
@@ -101,35 +110,38 @@ class cortana():
     
     def talk_with_cortana(self, *args, **kwargs):
         
-        text_start = "Hello, I am Cortana, your personal AI assistant, how can I help you?"
-        text_idle = "I am putting myself into IDLE, wake me, when you need me."
-        text_close = "I am shutting down my systems, bye"
+        if self.language == 'english':
+            language = 'en-US'
+        elif self.language == 'french':
+            language = 'fr-FR'
         
+        self.voice_cortana(self.answers['text_start'], **kwargs)
         command = True
-        self.voice_cortana(text_start, **kwargs)
         while command:
             text, success = self.cortana_listen()
             if text is not None and success:
                 self.listen_cortana(text, *args, **kwargs)
             if text is None:
-                self.voice_cortana(text_idle)
-                command = wait_for_call('Cortana', 'Shut Down')
+                self.voice_cortana(self.answers['text_idle'], **kwargs)
+                command = wait_for_call('Cortana', self.answers['quit'], language)
                 if command:
-                    self.voice_cortana('Yes?')
-        self.voice_cortana(text_close)
+                    self.voice_cortana(self.answers['response'], **kwargs)
+        self.voice_cortana(self.answers['text_close'])
 
     def show_log(self):
         print(self.log)
     
     def reset_messages(self, role=None):
         if role is None:
-            role = "You are a helpful AI assistant, resembling Cortana in the Halo game"
+            role = self.answers['role']
         self.messages=[{'role': "system", "content":role}]
     
 # %% Test
 
+# https://github.com/Uberi/speech_recognition/blob/master/reference/pocketsphinx.rst
+
 name = "gpt-3.5-turbo"
-my_cortana = cortana(name)
+my_cortana = cortana(name, language='french') 
 # message = "How far did human went into space?"
 # my_cortana.listen_cortana(message, max_tokens=50)
-my_cortana.talk_with_cortana(max_tokens=250, option_talk='pyttsx3')
+my_cortana.talk_with_cortana(max_tokens=100, option_talk='gtts')
