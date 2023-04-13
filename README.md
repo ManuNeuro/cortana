@@ -7,6 +7,10 @@
 $ pip install -r requirements.txt
 ```
 
+## Language
+
+By default the language is english, but you can use french as well. To do so you have to hadd the extension of Sphinx for [french](https://github.com/Uberi/speech_recognition/blob/master/reference/pocketsphinx.rst) into the appropriate folder.
+
 ## API key
 You need to create a file `api_key.py` inside which you have `secret_ket` with the API provided in your openIA account. 
 
