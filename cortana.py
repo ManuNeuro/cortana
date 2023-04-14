@@ -2,14 +2,14 @@ import os
 import openai
 from text_to_audio import text_to_speech_pyttsx3, text_to_speech_gtts
 from audio_to_text import speech_to_text_google, wait_for_call
-from predefined_answers import predefined_answers
+from predefined_answers import predefined_answers, text_command_detector
 
 class cortana():
     def __init__(self, model_name,  language='english', role=None, api_key=None,):
-        print('++++++++++++++++++++++++++++++++++++')
-        print('             Cortana ')
-        print('++++++++++++++++++++++++++++++++++++')
-        if api_key is None:
+        print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        print(f'                           Cortana ({language})')
+        print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        if api_key is None or api_key=='':
             from api_key import secret_key
             openai.api_key = secret_key
         else:
@@ -111,6 +111,7 @@ class cortana():
     
     def talk_with_cortana(self, *args, **kwargs):
         
+        # Language selector
         if self.language == 'english':
             language = 'en-US'
         elif self.language == 'french':
@@ -119,18 +120,33 @@ class cortana():
             if kwargs.get('option_talk', 'gtts') != 'gtts':
                 kwargs['option_talk'] = 'gtts'
         
+        # Welcoming message
         self.voice_cortana(self.answers['text_start'], **kwargs)
-        command = True
-        while command:
+        condition = True
+        while condition:
+            # Get the text from your audio speech
             text, success = self.cortana_listen()
-            if text is not None and success:
+            
+            # Check if a specific command has been used
+            if text is not None:
+                command = text_command_detector(text, self.language)
+            else:
+                command = None
+            
+            # Send the text to cortana
+            if (command is None) and (text is not None and success):
                 self.listen_cortana(text, *args, **kwargs)            
-            if text is None:
+            # Put cortana in pause
+            elif (command =='activated_pause') or (text is None):
                 self.voice_cortana(self.answers['text_idle'], **kwargs)
-                command = wait_for_call('Cortana', self.answers['quit'], language)
-                if command:
+                condition = wait_for_call('Cortana', self.answers['commands']['idle_quit'], language)
+                if condition:
                     self.voice_cortana(self.answers['response'], **kwargs)
+            # Shut down cortana
+            elif command =='activated_quit':
+                condition = False
         self.voice_cortana(self.answers['text_close'])
+        print('                  ---- Protocol Terminated ----')
 
     def show_log(self):
         print(self.log)
@@ -139,9 +155,10 @@ class cortana():
         if role is None:
             role = self.answers['role']
         self.messages=[{'role': "system", "content":role}]
-    
-# %% Test
 
-name = "gpt-3.5-turbo"
-my_cortana = cortana(name, language='english') 
-my_cortana.talk_with_cortana(max_tokens=100, option_talk='gtts')
+def button_click(language, api_key=None, max_tokens=200, option_talk='gtts'):
+    name = "gpt-3.5-turbo"
+    my_cortana = cortana(name, language, api_key=api_key) 
+    my_cortana.talk_with_cortana(max_tokens=max_tokens, option_talk=option_talk)
+
+

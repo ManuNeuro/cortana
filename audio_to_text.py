@@ -18,16 +18,20 @@ idle_french = lambda key_start, key_end:print(f"================================
                                               État de veille, dites \'{key_start}\' pour me réveiller...\n \
                                               Ou dites \'{key_end}\' pour me désactiver. \
                                               ==============================================")
-                                        
-def wait_for_call(key_start, key_end, language):
+
+def wait_for_call(key_start, key_end, language, loop='bool'):
     r = sr.Recognizer()
+    
+    # Condition to stop loop
+    condition = True
+    counter = 0
     
     with sr.Microphone() as source:
         if 'en' in language:
             idle_english(key_start, key_end)
         elif 'fr' in language:
             idle_french(key_start, key_end)
-        while True: 
+        while condition: 
             audio = r.listen(source)
             try:
                 text = r.recognize_google(audio, language=language)
@@ -36,7 +40,8 @@ def wait_for_call(key_start, key_end, language):
                 if key_end.lower() in text.lower():
                     return False
             except Exception as e:
-                print('Command not recognized.')
+                pass
+                # print('Command not recognized.')
 
 def speech_to_text_sr():
     recognizer = sr.Recognizer()
