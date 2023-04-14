@@ -16,4 +16,4 @@ You need to create a file `api_key.py` inside which you have `secret_ket` with t
 
 ## Video presentation
 
-Check my amateur [video](https://www.youtube.com/watch?v=YgMneXOTPj8) presentation! 
+Check my amateur [video presentation](https://www.youtube.com/watch?v=YgMneXOTPj8), and this  other [video](https://www.youtube.com/watch?v=BsAW7ew3LXU&t=133s) for how to add more languages. 
