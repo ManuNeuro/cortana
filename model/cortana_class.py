@@ -1,8 +1,8 @@
 import os
 import openai
-from text_to_audio import text_to_speech_pyttsx3, text_to_speech_gtts
-from audio_to_text import speech_to_text_google, wait_for_call
-from predefined_answers import predefined_answers, text_command_detector
+from cortana.model.text_to_audio import text_to_speech_pyttsx3, text_to_speech_gtts
+from cortana.model.audio_to_text import speech_to_text_google, wait_for_call
+from cortana.model.predefined_answers import predefined_answers, text_command_detector
 
 class cortana():
     def __init__(self, model_name,  language='english', role=None, api_key=None,):

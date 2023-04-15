@@ -8,7 +8,7 @@ Created on Fri Apr 14 14:13:02 2023
 import tkinter as tk
 from tkinter import Text
 from PIL import ImageTk
-from cortana import button_click
+from cortana.model.cortana_class import button_click
 import sys
 import threading
 
@@ -48,7 +48,7 @@ class MyApp:
         self.root.title("Cortana + chatGPT3.5")
         
         # Set background image
-        self.bg_image = ImageTk.PhotoImage(file="cortana.png")
+        self.bg_image = ImageTk.PhotoImage(file="images/cortana.png")
         bg_label = tk.Label(self.root, image=self.bg_image)
         bg_label.place(x=0, y=-70, relwidth=1, relheight=1)
 
