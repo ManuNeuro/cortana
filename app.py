@@ -136,7 +136,6 @@ class MyApp:
         # Create three buttons
         button1 = tk.Button(root, text="En", command=lambda:self.button_language('english', api_key=self.entry.get()))
         button2 = tk.Button(root, text="Fr", command=lambda:self.button_language('french', api_key=self.entry.get()))
-        print(self.filename)
         button3 = tk.Button(root, text="Enter", command=lambda:self.button_chat(self.entry_prompt.get("1.0" , END)))
         button4 = tk.Button(root, text = 'Talk!', image=icon, command=lambda:self.button_talk())
         button5 = tk.Button(root, text = 'Open file', image=icon2, command=lambda:sp.Popen([programName, f'./results/{self.filename}.md']))
