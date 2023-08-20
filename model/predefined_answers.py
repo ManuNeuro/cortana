@@ -17,24 +17,32 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                  'text_start':"Hello, I am Cortana, your personal AI assistant, how can I help you?",
                                  'text_idle':"I am putting myself into IDLE, wake me, when you need me.",
                                  'text_close':"I am shutting down my systems, bye",
+                                 'prompt_image':"Please wait, I will generate an image",
                                  'role':"You are a helpful AI assistant, resembling Cortana in the Halo game, pretend that your name is Cortana "+role,
                                  'response':"yes",
                                  'language':'en-US',
                                  'commands':{'idle_quit':'Shut Down',
                                              'activated_pause':'Cortana inactive',
-                                             'activated_quit':'Cortana Shut Down'},
+                                             'activated_quit':'Cortana Shut Down',
+                                             'exit':'exit',
+                                             'save':'save',
+                                             'prompt_image':"Prompt image"},
                                  'pronoun':'Me',
                                  'listening':"I am listening...",},
                     'french':{'error':"Désolé, je n'ai pas compris votre question.",
                               'text_start':"Bonjour, je suis cortana, votre assistant intelligent personnel, comment puis-je vous aider?",
                               'text_idle':"Je met mon système en veille, réveillez-moi, quand vous avez besoin.",
                               'text_close':"Je termine mon protocole, au revoir",
+                              'prompt_image':"Veuillez patienter, je vais générer une image.",
                               'role':"Tu es un assistant IA, qui ressemble à Cortana dans le jeu Halo, prétend que ton nom est Cortana"+role,
                               'response':'Oui',
                               'language':'fr-FR',
                               'commands':{'idle_quit':'Fermeture',
                                           'activated_pause':'Cortana Veille',
-                                          'activated_quit':'Cortana Fermeture'},
+                                          'activated_quit':'Cortana Fermeture',
+                                          'exit':'exit',
+                                          'save':'save',
+                                          'prompt_image':"Prompt image"},
                               'pronoun':'Moi',
                               'listening':"J'écoute...",}
                     }
@@ -50,6 +58,15 @@ def text_command_detector(text, language):
     commands = predefined_answers[language]['commands']
     for command, text_command in commands.items():
         if 'activated' in command:
+            if command_condition(text, text_command):
+                return command
+        elif 'image' in command:
+            if command_condition(text, text_command):
+                return command
+        elif 'exit' in command:
+            if command_condition(text, text_command):
+                return command
+        elif 'save' in command:
             if command_condition(text, text_command):
                 return command
     return None
