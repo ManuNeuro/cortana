@@ -23,7 +23,7 @@ class Window(Frame):
         self.inputeditor = Text(self, width="1")
         self.inputeditor.pack(fill=BOTH, expand=1, side=LEFT)
     
-        self.outputbox = HTMLLabel(self, width="1", background="black", html='<h1 style="color: cyan; text-align: center"> Cortana </H1>')
+        self.outputbox = HTMLLabel(self, width="1", background="white", html='<h1 style="color: cyan; text-align: center"> Cortana </H1>')
         self.outputbox.pack(fill=BOTH, expand=1, side=RIGHT)
         self.outputbox.fit_height()
         
@@ -45,7 +45,8 @@ class Window(Frame):
     def onInputChange(self , event):
         self.inputeditor.edit_modified(0)
         md2html = Markdown()
-        self.outputbox.set_html('<div style="color: cyan">'+md2html.convert(self.inputeditor.get("1.0" , END))+'</div>')
+        # self.outputbox.set_html('<div style="color: cyan">'+md2html.convert(self.inputeditor.get("1.0" , END))+'</div>')
+        self.outputbox.set_html(md2html.convert(self.inputeditor.get("1.0" , END)))
     
     def openfile(self):
         openfilename = filedialog.askopenfilename(filetypes=(("Markdown File", "*.md , *.mdown , *.markdown"),

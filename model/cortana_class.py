@@ -9,9 +9,9 @@ import pathlib
 
 class cortana():
     def __init__(self, model_name=None,  language='english', role=None, api_key=None,):
-        print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
-        print(f'                           Cortana ({language})')
-        print('++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+        print('+++++++++++++++++++++++++++++++++++++++++++\n')
+        print(f'             Cortana ({language})\n')
+        print('+++++++++++++++++++++++++++++++++++++++++++\n')
         if api_key is None or api_key=='':
             from api_key import secret_key
             openai.api_key = secret_key
