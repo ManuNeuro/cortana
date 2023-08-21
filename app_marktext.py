@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Apr 14 14:13:02 2023
+Created on Mon Aug 21 08:48:47 2023
 
 @author: ManuMan
 """
 from datetime import datetime
 import tkinter as tk
+from tkinter import ttk
 from tkinter import Text, font
 from tkinter import *
 from PIL import ImageTk
 from PIL import Image,ImageTk
+from ttkthemes import ThemedStyle
 from cortana.model.cortana_class import button_voice, button_text
 from cortana.model.cortana_class import cortana
 import sys
@@ -22,7 +24,7 @@ from io import StringIO
 from markdown2 import Markdown
 import numpy as np
 import subprocess as sp
-programName = "C:\Program Files\Sublime Text 3\sublime_text.exe"
+programName = "C:\Program Files\MarkText\MarkText.exe"
 
 # path = './results/log.md'
 # with open(path, 'w') as f:
@@ -30,78 +32,70 @@ programName = "C:\Program Files\Sublime Text 3\sublime_text.exe"
 #         print('#Hello, World')
 
 class MarkdownOutput:
-    def __init__(self, output_widget, filename):
-        self.output_widget = output_widget
-        self.buffer = StringIO()
+    def __init__(self, filename):
         self.captured_output = ""
-        self.filename = filename
-
+        self.filepath = f'./results/{filename}.md'
+        self.programpath = programName
+        self.poll = 0
+        
     def write(self, text):
-        self.buffer.write(text)
         self.captured_output += text
-        self.update_widget()
+        self.update_marktext()
 
-    def update_widget(self):
-        md2html = Markdown()
-        output_text = self.buffer.getvalue()
-        self.output_widget.config(state=tk.NORMAL)
-        self.output_widget.delete("1.0", tk.END)
-        self.output_widget.set_html('<div style="color: cyan">'+md2html.convert(output_text)+'</div>')
-        self.output_widget.config(state=tk.DISABLED)
+    def update_marktext(self):
         self.save_to_markdown()
+        self.launch_marketext()
+
+    def launch_marketext(self):
+        if self.poll == 0:
+            p = sp.Popen([self.programpath, self.filepath])
+            self.poll = p.poll()
+        elif self.poll is None:
+            pass
         
     def save_to_markdown(self):
-        with open(f'results/{self.filename}.md', "w") as file:
+        with open(self.filepath, "w") as file:
             file.write(self.captured_output)
     
     def flush(self):
-        self.buffer.flush()
-
-# class RedirectedPrint:
-#     def __init__(self, output_text):
-#         self.output_text = output_text
-
-#     def write(self, text):
-#         self.output_text.insert(tk.END, text)
-#         self.output_text.see(tk.END)
-
-#     def flush(self):
-#         pass
+        pass
 
 class MyApp:
     def __init__(self, root):
         # Set the window size
         self.root = root
-        self.root.geometry("1200x650")
+        self.root.geometry("650x640")
         self.root.title("Cortana + chatGPT4")
-        self.root['background'] = "#000025"
+        self. root.configure(background = '#373e48')
+        self.style = ThemedStyle(self.root)
+        self.style.set_theme("blue")
         self.myfont = font.Font(family="Helvetica", size=14)
         self.def_filename()
-        root.iconbitmap("icon.ico")
+        self.root.iconbitmap("icon.ico")
         
         # Set background image
         bg_image = Image.open("./images/cortana.png")
-        resized_img=bg_image.resize((600,325),Image.ANTIALIAS)
+        resized_img=bg_image.resize((650,400),Image.LANCZOS)
         self.bg_image=ImageTk.PhotoImage(resized_img)
-        bg_label = tk.Label(self.root, image=self.bg_image)
+        bg_label = ttk.Label(self.root, image=self.bg_image)
         bg_label.grid(row = 1, column = 0, sticky = 'ne',)
         # bg_label.place(x=-70, y=-70, relwidth=1, relheight=1)
 
         # Create a label for the entry widget
-        entry_label_left = tk.Label(self.root, text="API key from openai:")
-        entry_label_left.place(relx=0.01, rely=0.56)
+        entry_label_left = ttk.Label(self.root, text="API key from openai:")
+        entry_label_left.place(relx=0.5, rely=0.63)
         
         # Set entry
-        self.entry = tk.Entry(root)
-        self.entry.place(relx=0.11, rely=0.56, width=150)
+        self.entry = ttk.Entry(root)
+        self.entry.place(relx=0.7, rely=0.63, width=150)
         
         self.entry_prompt = tk.Text(self.root, width="1", font=self.myfont)
-        self.entry_prompt.place(relx=0.01, rely=0.65, width=600, height=200)
+        self.entry_prompt.place(relx=0.01, rely=0.66, width=635, height=175)
         
-        # Creating a photoimage object to use image
+        # Creating icons
         photo=Image.open("./images/icon.png")
         # Resizing image to fit on button
-        resized_img=photo.resize((30,30),Image.ANTIALIAS)
+        resized_img=photo.resize((30,30),Image.LANCZOS)
         icon=ImageTk.PhotoImage(resized_img)
         # Let us create a label for button event
         img_label= Label(image=icon)
@@ -109,56 +103,60 @@ class MyApp:
 
         photo=Image.open("./images/icon-open.png")
         # Resizing image to fit on button
-        resized_img=photo.resize((30,30),Image.ANTIALIAS)
+        resized_img=photo.resize((30,30),Image.LANCZOS)
         icon2=ImageTk.PhotoImage(resized_img)
         # Let us create a label for button event
         img_label2= Label(image=icon2)
         img_label2.image = icon2 # keep a reference!
         
-        # Create a label for the entry widget (below)
-        # entry_label_below = tk.Label(root, text="API key is not stored and only use within a session")
-        # entry_label_below.place(relx=0.3, rely=0.55)
-        
+        photo=Image.open("./images/param.png")
+        # Resizing image to fit on button
+        resized_img=photo.resize((30,30),Image.LANCZOS)
+        icon3=ImageTk.PhotoImage(resized_img)
+        # Let us create a label for button event
+        img_label3= Label(image=icon3)
+        img_label3.image = icon3 # keep a reference!
         
         # Create a label for the entry question
-        entry_label_text = tk.Label(root, text="Enter you question here:")
-        entry_label_text.place(relx=0.01, rely=0.62)
+        entry_label_text = ttk.Label(root, text="↓ Enter you question here ↓")
+        entry_label_text.place(relx=0.01, rely=0.63)
         
-        self.outputbox = HTMLLabel(self.root, wrap=tk.WORD, width="1", background="Black", 
-                                     html='<h1 style="color: cyan">Cortana</h1>') 
-        self.outputbox.place(relx=0.75, rely=0.48, anchor="center", width=580, height=640)
-        # self.outputbox.pack(fill=BOTH, expand=1, side=RIGHT)
-        # self.outputbox.fit_height()
-        
-        self.markdown_output = MarkdownOutput(self.outputbox, self.filename)
+        self.markdown_output = MarkdownOutput(self.filename)
         sys.stdout = self.markdown_output     
         
         # Create three buttons
-        button1 = tk.Button(root, text="En", command=lambda:self.button_language('english', api_key=self.entry.get()))
-        button2 = tk.Button(root, text="Fr", command=lambda:self.button_language('french', api_key=self.entry.get()))
-        button3 = tk.Button(root, text="Enter", command=lambda:self.button_chat(self.entry_prompt.get("1.0" , END)))
-        button4 = tk.Button(root, text = 'Talk!', image=icon, command=lambda:self.button_talk())
-        button5 = tk.Button(root, text = 'Open file', image=icon2, command=lambda:sp.Popen([programName, f'./results/{self.filename}.md']))
+        button1 = ttk.Button(root, text="En", command=lambda:self.button_language('english', api_key=self.entry.get()))
+        button2 = ttk.Button(root, text="Fr", command=lambda:self.button_language('french', api_key=self.entry.get()))
+        button3 = ttk.Button(root, text="Enter", width=100, 
+                             command=lambda:self.button_chat(self.entry_prompt.get("1.0" , END)), )
+        button4 = tk.Button(root, text = 'Talk!', image=icon, borderwidth=0, pady=0, padx=0,
+                             command=lambda:self.button_talk())
+        button5 = tk.Button(root, text = 'Open file', image=icon2, borderwidth=0, pady=0, padx=0,
+                             command=lambda:sp.Popen([programName, f'./results/{self.filename}.md']))
+        button6 = tk.Button(root, text = 'Parameters', image=icon3, borderwidth=0, pady=0, padx=0,
+                             command=lambda:sp.Popen([self.open_param, self.param_path]))
         
-        button1.place(relx=0.03, rely=0.05, anchor="center")
-        button2.place(relx=0.05, rely=0.05, anchor="center")
-        button3.place(relx=0.47, rely=0.9)
-        button4.place(relx=0.46, rely=0.01)
-        button5.place(relx=0.95, rely=0.03)
-    
+        button1.place(relx=0.05, rely=0.05, anchor="center")
+        button2.place(relx=0.12, rely=0.05, anchor="center")
+        button3.place(relx=0.5, rely=0.96, anchor="center")
+        button4.place(relx=0.92, rely=0.01)
+        button5.place(relx=0.92, rely=0.08)
+        button6.place(relx=0.92, rely=0.5)
+
     def def_filename(self):
         if not hasattr(self, "filename"):
-            # the date can be formatted as a string if needed
             date = datetime.now()
-            date_str = date.strftime('%Y-%m-%d_%H-%M')
+            date_str = date.strftime('%Y-%m-%d')
             rnd_tag = np.random.randint(1, 1000000)
             self.filename = f'{date_str}_historic#{rnd_tag}'
+            self.open_param = "C:\Program Files\Sublime Text 3\sublime_text.exe"
+            self.param_path = "./model/parameters.json"
     
     def display_gif(self, filename):
         gif_path = "cortana-halo.gif"  # Replace with your GIF image path
         gif_image = Image.open('./images/{filename}.gif')
         self.gif_photo = ImageTk.PhotoImage(gif_image)
-        gif_label = tk.Label(self.root, image=self.gif_photo)
+        gif_label = ttk.Label(self.root, image=self.gif_photo)
 
         
     def talk_with_cortana(self, **kwargs):

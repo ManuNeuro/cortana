@@ -4,7 +4,7 @@
     "size": "1024x1024"
   },
   "text": {
-    "max_tokens": 700,
+    "max_tokens": 1000,
     "temperature": 0.4
   },
   "voice": {

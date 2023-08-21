@@ -6,12 +6,13 @@ from cortana.model.predefined_answers import predefined_answers, text_command_de
 import webbrowser
 import numpy as np
 import pathlib
+import os
 
 class cortana():
     def __init__(self, model_name=None,  language='english', role=None, api_key=None,):
-        print('+++++++++++++++++++++++++++++++++++++++++++\n')
-        print(f'             Cortana ({language})\n')
-        print('+++++++++++++++++++++++++++++++++++++++++++\n')
+        print('---')
+        print(f'#Cortana ({language})\n')
+        print('---\n\n')
         if api_key is None or api_key=='':
             from api_key import secret_key
             openai.api_key = secret_key
@@ -42,7 +43,7 @@ class cortana():
             self.language = language
             self.code_language = 'fr-FR'
         else:
-            raise Exception("{selflanguage}, language not supported.")
+            raise Exception("{language}, language not supported.")
         return self.code_language
             
     @staticmethod
@@ -55,7 +56,7 @@ class cortana():
         if model_name is None:
             print('All models available:\n')
             self.list_model()
-            print('----------------')
+            print('---')
             print('Choose the model:')
             model_name = input()
         
@@ -87,12 +88,11 @@ class cortana():
         
         # Print
         if _print:
-            print('----------------------')
-            pronoun = self.answers['pronoun']
-            print(f'{pronoun}: {self.last_input}')
-            print('----------------------')
+            # pronoun = self.answers['pronoun']
+            print(f'{os.getlogin()}: {self.last_input}')
+            print('---\n')
             print(f'Cortana: {self.last_answer}')
-            print('****************************')
+            print('---\n')
     
     def prompt_image(self, input_, n=5, size="1024x1024", **kwargs):
         
