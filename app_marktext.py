@@ -67,11 +67,10 @@ class ImageLabel(tk.Label):
         except EOFError:
             pass
 
-        self.delay = 70
-        # try:
-        #     self.delay = im.info['duration']
-        # except:
-        #     self.delay = 100
+        try:
+            self.delay = int(im.info['duration'] * 1.6)
+        except:
+            self.delay = 100
 
         if len(self.frames) == 1:
             self.config(image=self.frames[0])
