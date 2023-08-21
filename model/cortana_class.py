@@ -10,9 +10,10 @@ import os
 
 class cortana():
     def __init__(self, model_name=None,  language='english', role=None, api_key=None,):
-        print('---')
-        print(f'#Cortana ({language})\n')
-        print('---\n\n')
+        print('------- \n')
+        print(f'#Cortana ({language}) \n')
+        print('----------- ')
+        print('')
         if api_key is None or api_key=='':
             from api_key import secret_key
             openai.api_key = secret_key
@@ -54,9 +55,9 @@ class cortana():
         
     def set_model(self, model_name=None):
         if model_name is None:
-            print('All models available:\n')
+            print('All models available: \n')
             self.list_model()
-            print('---')
+            print('----- \n')
             print('Choose the model:')
             model_name = input()
         
@@ -89,10 +90,12 @@ class cortana():
         # Print
         if _print:
             # pronoun = self.answers['pronoun']
-            print(f'{os.getlogin()}: {self.last_input}')
-            print('---\n')
-            print(f'Cortana: {self.last_answer}')
-            print('---\n')
+            print('-------- \n')
+            print(f'{os.getlogin()}: {self.last_input} \n')
+            print('----------- \n')
+            print(f'Cortana: {self.last_answer} \n')
+            print('----------- ')
+            print('')
     
     def prompt_image(self, input_, n=5, size="1024x1024", **kwargs):
         
@@ -111,6 +114,8 @@ class cortana():
         print('----------------------')
         print('I generated image(s) at the following url(s):\n')
         print(urls)
+        print('----------- ')
+        print('')
         self.messages.append({'role':'assistant', "content":urls})
         # self.image_url = url
         return urls
