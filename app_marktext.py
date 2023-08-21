@@ -143,7 +143,7 @@ class MyApp(tk.Frame):
         self.entry_prompt.place(relx=0.01, rely=0.66, width=635, height=175)
         
         # Creating icons
-        photo=Image.open("./images/icon1.png")
+        photo=Image.open("./images/icon.png")
         # Resizing image to fit on button
         resized_img=photo.resize((30,30),Image.LANCZOS)
         icon=ImageTk.PhotoImage(resized_img)
@@ -220,7 +220,7 @@ class MyApp(tk.Frame):
             self.folder_res = path = os.path.realpath('./results/')
             
             # Set background image
-            bg_image = Image.open("./images/cortana.png")
+            bg_image = Image.open("./images/cover2.jpg")
             resized_img=bg_image.resize(self.monitor_size(0.5, 0.55), Image.LANCZOS)
             self.bg_image=ImageTk.PhotoImage(resized_img)
             bg_label = ttk.Label(self.root, image=self.bg_image)
@@ -237,7 +237,6 @@ class MyApp(tk.Frame):
     
     def button_language(self, language, api_key):
         name = "gpt-4"
-        language = 'english'
         api_key = None
         self.my_cortana = cortana(name, language, api_key=api_key)
         self.gif.unload()
@@ -265,7 +264,7 @@ class MyApp(tk.Frame):
         # label_gif = ttk.Label(self.root)
         self.gif = ImageLabel(self.root)
         self.gif.load(filepath)       
-        self.gif.place(relx=0.2, rely=0.01)
+        self.gif.place(relx=0.2, rely=0.005)
         self.launch_gif()
 
     def launch_gif(self):
