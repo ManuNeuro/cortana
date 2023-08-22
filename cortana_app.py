@@ -211,24 +211,24 @@ class MyApp(tk.Frame):
                              command=lambda:self.button_talk())
         button5 = ttk.Button(root, text = 'Open file', image=icon2, #borderwidth=0, pady=0, padx=0, background="white",
                              command=lambda:sp.Popen([programName, f'./results/{self.filename}.md']))
-        button6 = tk.Button(root, text = 'Parameters', image=icon3, borderwidth=0, pady=0, padx=0, background="white",
+        button6 = tk.Button(root, text = 'Parameters', image=icon3, borderwidth=0, pady=0, padx=0, background="#13273a",
                              command=lambda:sp.Popen([self.open_param, self.param_path]))
         button7 = tk.Button(root, text = 'Folder', image=icon4, borderwidth=0, pady=0, padx=0, background="#13273a",
                              command=lambda:os.startfile(self.folder_res))
-        button8 = tk.Button(root, text = 'Folder', image=icon5, borderwidth=0, pady=0, padx=0, background="#13273a",
+        button8 = tk.Button(root, text = 'New', image=icon5, borderwidth=0, pady=0, padx=0, background="#13273a",
                             command=lambda:self.new_filename())
-        button9 = ttk.Button(root, text = 'Folder', image=icon6, #borderwidth=0, pady=0, padx=0, background="#13273a",
+        button9 = ttk.Button(root, text = 'Load', image=icon6, #borderwidth=0, pady=0, padx=0, background="#13273a",
                             command=lambda:self.load_from_file())
         
         
         button1.place(relx=0.1, rely=0.05, anchor="center")
         button2.place(relx=0.1, rely=0.1, anchor="center")
         button3.place(relx=0.5, rely=0.96, anchor="center")
-        button4.place(relx=0.92, rely=0.6)
+        button4.place(relx=0.935, rely=0.601)
         button5.place(relx=0.905, rely=0.025)
-        button6.place(relx=0.837, rely=0.035)
-        button7.place(relx=0.8642, rely=0.6)
-        button8.place(relx=0.8, rely=0.6)
+        button6.place(relx=0.825, rely=0.601)
+        button7.place(relx=0.88, rely=0.601)
+        button8.place(relx=0.77, rely=0.601)
         button9.place(relx=0.905, rely=0.1)
 
     @staticmethod
