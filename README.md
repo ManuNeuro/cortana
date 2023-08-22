@@ -22,7 +22,7 @@ Here are the cool features I implemented:
 By default, the language is English, but you can use French as well. To do so, you have to add the extension of Sphinx for [french](https://github.com/Uberi/speech_recognition/blob/master/reference/pocketsphinx.rst) into the appropriate folder: `speech_recognition\pocketsphinx-data\fr-FR`
 
 ## API key
-You need to create a file `api_key.py` inside which you have `secret_ket` with the API provided in your openIA account. 
+You need to create a file `api_key.py` inside which you have `secret_key` with the API provided in your openIA account. 
 
 ## Video presentation
 
