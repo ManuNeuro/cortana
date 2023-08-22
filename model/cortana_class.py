@@ -118,7 +118,8 @@ class cortana():
         # self.image_url = url
         return urls
         
-    def voice_cortana(self, text, option_talk='pyttsx3', **kwargs):
+    def voice_cortana(self, text, **kwargs):
+        option_talk = kwargs.get('option_talk', 'pyttsx3')
         if self.option_talk is None:
             self.option_talk = option_talk
                 
@@ -130,9 +131,9 @@ class cortana():
             language = self.set_language(kwargs.get('language', self.language))
             text_to_speech_gtts(text, language=language)
     
-    def listen_cortana(self, *args, option_talk="pyttsx3", **kwargs):
+    def listen_cortana(self, *args, **kwargs):
         self.submit_prompt(*args, **kwargs)
-        self.voice_cortana(self.last_answer, option_talk, **kwargs['voice'])
+        self.voice_cortana(self.last_answer, **kwargs['voice'])
     
     def cortana_listen(self):
         if self.language == 'english':
@@ -244,12 +245,3 @@ class cortana():
             role = self.answers['role']
         self.messages=[{'role': "system", "content":role}]
 
-def button_voice(self, language, api_key=None, max_tokens=200, option_talk='gtts'):
-    name = "gpt-4"
-    my_cortana = cortana(name, language, api_key=api_key) 
-    my_cortana.talk_with_cortana(max_tokens=max_tokens, option_talk=option_talk)
-
-def button_text(language, input_text, api_key=None):
-    name = "gpt-4"
-    my_cortana = cortana(name, language, api_key=api_key) 
-    my_cortana.submit_prompt(input_text)
