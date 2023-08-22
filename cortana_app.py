@@ -241,7 +241,6 @@ class MyApp(tk.Frame):
         rnd_tag = np.random.randint(1, 1000000)
         filename = f'{date_str}_historic#{rnd_tag}' 
         if hasattr(self, 'filename'): # If this is not the first time
-            sp.Popen([programName, f'./results/{filename}.md'])
             self.markdown_output = MarkdownOutput(filename)
             sys.stdout = self.markdown_output
         self.filename = filename
