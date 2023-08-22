@@ -94,8 +94,8 @@ def load_markdown_file(filename):
     return content
 
 class MarkdownOutput:
-    def __init__(self, filename):
-        self.captured_output = ""
+    def __init__(self, filename, captured_output=""):
+        self.captured_output = captured_output
         self.filepath = f'./results/{filename}.md'
         self.programpath = programName
         self.poll = 0
@@ -252,7 +252,7 @@ class MyApp(tk.Frame):
         self.filename = os.path.basename(filename).split('.md')[0]
         self.my_cortana.messages.append({'role':'user', "content":last_messages})
         sp.Popen([programName, f'./results/{self.filename}.md'])
-        self.markdown_output = MarkdownOutput(self.filename)
+        self.markdown_output = MarkdownOutput(self.filename, last_messages)
         sys.stdout = self.markdown_output
         
     def def_load(self):

@@ -111,10 +111,11 @@ class cortana():
         print(f'Prompt for the image: {self.last_input} \n')
         print('----------------------')
         print('I generated image(s) at the following url(s):\n')
-        print(urls)
+        for url in urls:
+            print(str(url)+'\n')
         print('----------- \n')
         print('$~~~~~~~~~~~$')
-        self.messages.append({'role':'assistant', "content":urls})
+        # self.messages.append({'role':'assistant', "content":urls})
         # self.image_url = url
         return urls
         
