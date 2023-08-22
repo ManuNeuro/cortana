@@ -63,7 +63,7 @@ class cortana():
         
         self.model_name = model_name
                 
-    def prompt(self, input_, max_tokens=20, temperature=0.4, _print=True, **kwargs):
+    def prompt(self, input_, _print=True, **kwargs):
         # Parameters
         if not isinstance(input_, str):
             raise Exception(f'input must be of type str, currently is {type(input_)}')
@@ -76,8 +76,6 @@ class cortana():
         # ChatCompletion
         completion = openai.ChatCompletion.create(model=self.model_name,
                                  messages=self.messages,
-                                 max_tokens=max_tokens,
-                                 temperature=temperature,
                                  **kwargs)
         answer = completion.choices[0].message["content"]
         
@@ -133,7 +131,7 @@ class cortana():
             text_to_speech_gtts(text, language=language)
     
     def listen_cortana(self, *args, option_talk="pyttsx3", **kwargs):
-        self.prompt(*args, **kwargs['text'], **kwargs['image'])
+        self.submit_prompt(*args, **kwargs)
         self.voice_cortana(self.last_answer, option_talk, **kwargs['voice'])
     
     def cortana_listen(self):

@@ -23,10 +23,10 @@ from itertools import count
 
 programName = "C:\Program Files\MarkText\MarkText.exe"
 
-# path = './results/log.md'
-# with open(path, 'w') as f:
-#     with contextlib.redirect_stdout(f):
-#         print('#Hello, World')
+
+def create_icon(filename, icon_sizes = [(64,64)]):
+    img = Image.open(f"./images/{filename}.png")
+    img.save('icon.ico', sizes=icon_sizes)
 
 def window_size_str():
     return str(int(GetSystemMetrics(0)/2)) + 'x' + str(GetSystemMetrics(1)-50)
@@ -123,7 +123,7 @@ class MyApp(tk.Frame):
         self.root = root
         self.root.geometry(window_size_str())
         self.root.title("Cortana + chatGPT4")
-        self.root.configure(background = '#373e48')
+        self.root.configure(background = "#13273a")
         self.style = ThemedStyle(self.root)
         self.style.set_theme("breeze")
         self.myfont = font.Font(family="Helvetica", size=14)
@@ -132,17 +132,17 @@ class MyApp(tk.Frame):
         
         # Create a label for the entry widget
         entry_label_left = ttk.Label(self.root, text="API key from openai:")
-        entry_label_left.place(relx=0.5, rely=0.62)
+        entry_label_left.place(relx=0.3, rely=0.615)
         
         # Set entry
         self.entry = ttk.Entry(root)
-        self.entry.place(relx=0.7, rely=0.605, width=150)
+        self.entry.place(relx=0.5, rely=0.605, width=150)
         
         self.entry_prompt = tk.Text(self.root, width="1", font=self.myfont)
         self.entry_prompt.place(relx=0.01, rely=0.66, width=635, height=175)
         
         # Creating icons
-        photo=Image.open("./images/icon.png")
+        photo=Image.open("./images/icon1.png")
         # Resizing image to fit on button
         resized_img=photo.resize((30,30),Image.LANCZOS)
         icon=ImageTk.PhotoImage(resized_img)
@@ -186,23 +186,23 @@ class MyApp(tk.Frame):
         button2 = ttk.Button(root, text="Fr", command=lambda:self.button_language('french', api_key=self.entry.get()))
         button3 = ttk.Button(root, text="Enter", width=100, 
                              command=lambda:self.button_chat(self.entry_prompt.get("1.0" , END)), )
-        button4 = tk.Button(root, text = 'Talk!', image=icon, borderwidth=0, pady=0, padx=0, background="black", 
+        button4 = tk.Button(root, text = 'Talk!', image=icon, borderwidth=0, pady=0, padx=0, background="#13273a", 
                              command=lambda:self.button_talk())
-        button5 = tk.Button(root, text = 'Open file', image=icon2, borderwidth=0, pady=0, padx=0, background="white",
+        button5 = ttk.Button(root, text = 'Open file', image=icon2, #borderwidth=0, pady=0, padx=0, background="white",
                              command=lambda:sp.Popen([programName, f'./results/{self.filename}.md']))
         button6 = tk.Button(root, text = 'Parameters', image=icon3, borderwidth=0, pady=0, padx=0, background="white",
                              command=lambda:sp.Popen([self.open_param, self.param_path]))
-        button7 = tk.Button(root, text = 'Folder', image=icon4, borderwidth=0, pady=0, padx=0, background="black",
+        button7 = tk.Button(root, text = 'Folder', image=icon4, borderwidth=0, pady=0, padx=0, background="#13273a",
                              command=lambda:os.startfile(self.folder_res))
         
         
         button1.place(relx=0.1, rely=0.05, anchor="center")
         button2.place(relx=0.1, rely=0.1, anchor="center")
         button3.place(relx=0.5, rely=0.96, anchor="center")
-        button4.place(relx=0.92, rely=0.01)
-        button5.place(relx=0.92, rely=0.08)
-        button6.place(relx=0.92, rely=0.5)
-        button7.place(relx=0.05, rely=0.5)
+        button4.place(relx=0.92, rely=0.6)
+        button5.place(relx=0.905, rely=0.025)
+        button6.place(relx=0.837, rely=0.035)
+        button7.place(relx=0.85, rely=0.6)
     
     @staticmethod
     def monitor_size(x_ratio, y_ratio):
@@ -219,7 +219,7 @@ class MyApp(tk.Frame):
             self.folder_res = path = os.path.realpath('./results/')
             
             # Set background image
-            bg_image = Image.open("./images/cover2.jpg")
+            bg_image = Image.open("./images/cover1.jpg")
             resized_img=bg_image.resize(self.monitor_size(0.5, 0.55), Image.LANCZOS)
             self.bg_image=ImageTk.PhotoImage(resized_img)
             bg_label = ttk.Label(self.root, image=self.bg_image)
