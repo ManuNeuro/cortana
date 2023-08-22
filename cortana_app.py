@@ -8,7 +8,7 @@ import os
 from datetime import datetime
 import tkinter as tk
 from tkinter import ttk
-from tkinter import Text, font
+from tkinter import Text, font, filedialog
 from tkinter import *
 from PIL import Image,ImageTk, ImageSequence
 from ttkthemes import ThemedStyle
@@ -88,6 +88,11 @@ class ImageLabel(tk.Label):
             self.config(image=self.frames[self.loc])
             self.after(self.delay, self.next_frame)
 
+def load_markdown_file(filename):
+    with open(filename, 'r') as file:
+        content = file.read()
+    return content
+
 class MarkdownOutput:
     def __init__(self, filename):
         self.captured_output = ""
@@ -127,7 +132,7 @@ class MyApp(tk.Frame):
         self.style = ThemedStyle(self.root)
         self.style.set_theme("breeze")
         self.myfont = font.Font(family="Helvetica", size=14)
-        self.def_filename()
+        self.def_load()
         self.root.iconbitmap("icon.ico")
         
         # Create a label for the entry widget
@@ -174,6 +179,22 @@ class MyApp(tk.Frame):
         img_label4= Label(image=icon4)
         img_label4.image = icon4 # keep a reference!
         
+        photo=Image.open("./images/plus.png")
+        # Resizing image to fit on button
+        resized_img=photo.resize((30,30),Image.LANCZOS)
+        icon5=ImageTk.PhotoImage(resized_img)
+        # Let us create a label for button event
+        img_label5= Label(image=icon5)
+        img_label5.image = icon5 # keep a reference!
+        
+        photo=Image.open("./images/load.png")
+        # Resizing image to fit on button
+        resized_img=photo.resize((30,30),Image.LANCZOS)
+        icon6=ImageTk.PhotoImage(resized_img)
+        # Let us create a label for button event
+        img_label6= Label(image=icon6)
+        img_label6.image = icon6 # keep a reference!
+        
         # Create a label for the entry question
         entry_label_text = ttk.Label(root, text="↓ Enter you question here ↓")
         entry_label_text.place(relx=0.01, rely=0.63)
@@ -194,6 +215,10 @@ class MyApp(tk.Frame):
                              command=lambda:sp.Popen([self.open_param, self.param_path]))
         button7 = tk.Button(root, text = 'Folder', image=icon4, borderwidth=0, pady=0, padx=0, background="#13273a",
                              command=lambda:os.startfile(self.folder_res))
+        button8 = tk.Button(root, text = 'Folder', image=icon5, borderwidth=0, pady=0, padx=0, background="#13273a",
+                            command=lambda:self.new_filename())
+        button9 = ttk.Button(root, text = 'Folder', image=icon6, #borderwidth=0, pady=0, padx=0, background="#13273a",
+                            command=lambda:self.load_from_file())
         
         
         button1.place(relx=0.1, rely=0.05, anchor="center")
@@ -202,18 +227,37 @@ class MyApp(tk.Frame):
         button4.place(relx=0.92, rely=0.6)
         button5.place(relx=0.905, rely=0.025)
         button6.place(relx=0.837, rely=0.035)
-        button7.place(relx=0.85, rely=0.6)
-    
+        button7.place(relx=0.8642, rely=0.6)
+        button8.place(relx=0.8, rely=0.6)
+        button9.place(relx=0.905, rely=0.1)
+
     @staticmethod
     def monitor_size(x_ratio, y_ratio):
         return int(GetSystemMetrics(0)*x_ratio), int(GetSystemMetrics(1)*y_ratio)
+    
+    def new_filename(self):       
+        date = datetime.now()
+        date_str = date.strftime('%Y-%m-%d')
+        rnd_tag = np.random.randint(1, 1000000)
+        filename = f'{date_str}_historic#{rnd_tag}' 
+        if hasattr(self, 'filename'): # If this is not the first time
+            sp.Popen([programName, f'./results/{filename}.md'])
+            self.markdown_output = MarkdownOutput(filename)
+            sys.stdout = self.markdown_output
+        self.filename = filename
+    
+    def load_from_file(self):
+        filename = filedialog.askopenfilename(initialdir="./results/")
+        last_messages = load_markdown_file(filename)
+        self.filename = os.path.basename(filename).split('.md')[0]
+        self.my_cortana.messages.append({'role':'user', "content":last_messages})
+        sp.Popen([programName, f'./results/{self.filename}.md'])
+        self.markdown_output = MarkdownOutput(self.filename)
+        sys.stdout = self.markdown_output
         
-    def def_filename(self):
+    def def_load(self):
         if not hasattr(self, "filename"):
-            date = datetime.now()
-            date_str = date.strftime('%Y-%m-%d')
-            rnd_tag = np.random.randint(1, 1000000)
-            self.filename = f'{date_str}_historic#{rnd_tag}'
+            self.new_filename()
             self.open_param = "C:\Program Files\Sublime Text 3\sublime_text.exe"
             self.param_path = "./model/parameters.json"
             self.folder_res = path = os.path.realpath('./results/')
