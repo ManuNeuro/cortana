@@ -26,7 +26,7 @@ You need to create a file `api_key.py` inside which you have `secret_ket` with t
 
 ## Video presentation
 
-Check my amateur [video presentation](https://youtu.be/mwl1KGR3O64), presenting the app's last update!
+Check my amateur [video presentation](https://youtu.be/IIm2TONVlyU), presenting the app's last update!
 
 ## News
 
