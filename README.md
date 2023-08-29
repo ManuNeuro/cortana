@@ -1,6 +1,6 @@
 # Cortana
 
- A fun project to be able to interact with ChatGPT with audio
+ It is a fun project to be able to interact with ChatGPT with audio, and it allows programmers to have the response in their favourite markdown editor.
 
 ## Installing
 
