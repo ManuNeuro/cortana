@@ -23,7 +23,7 @@ By default, the language is English, but you can use French as well. To do so, y
 
 ## API key
 
-You need to create a file `api_key.py` inside which you have `secret_key` with the API provided in your openIA account. 
+You need to provide the API key delivered in your openIA account. You will be prompted to do so directly in the interface of the app, and then the key is going to be encrypted before it's saved.
 
 ## Video presentation
 
