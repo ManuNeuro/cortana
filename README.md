@@ -31,20 +31,16 @@ Check my amateur [video presentation](https://youtu.be/IIm2TONVlyU), presenting 
 
 ## News
 
-Done:
+**Done:**
 
-- Simplification of app launching 
+- [x] Simplification of app launching
+- [x] Adding preprompt options (persona, text, voice, role)
+- [x] Adding API key manager + encryption
 
-- Adding preprompt options (persona, text, voice, role) 
+**In the future:**
 
-- Adding API key manager + encryption
-
-In the future:
-
-- Adding more option for speech-to-text and text-to-speech.
-
-- Adding pre-defined persona and roles in selection directly in the app
-
-- Adding a light icon when Cortana is listening in the active conversation
-
-- Adding a voice and record button to use with the passive conversation
+- [ ] Adding more option for speech-to-text and text-to-speech.
+- [ ] Adding pre-defined persona and roles in selection directly in the app
+- [ ] Adding a light icon when Cortana is listening in the active mode
+- [ ] Adding a shutdown button when in active mode
+- [ ] Adding a voice and record button to use with the passive mode
