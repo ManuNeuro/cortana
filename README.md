@@ -14,7 +14,7 @@ Here are the cool features I implemented:
 
 - Markdown reader (by default, it's Mark text, you can change it for whatever you want)
 - Multi-discussion (select any file you want)
-- Voice and text (you can activate an inline discussion as if you were discussing with Cortana, ... however it's slow!)
+- Voice and text (you can activate the active mode, an audio discussion as if you were discussing with Cortana... however, it's slow!)
 - Prompt Image (using the command `Prompt image` and then asking for whatever you want is going to create images)
 
 ## Language
