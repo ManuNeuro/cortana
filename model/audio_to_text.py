@@ -19,7 +19,7 @@ idle_french = lambda key_start, key_end:print(f"================================
                                               Ou dites \'{key_end}\' pour me désactiver. \
                                               ==============================================")
 
-def wait_for_call(key_start, key_end, language, loop='bool'):
+def wait_for_call(key_start, key_end, language, flag=True):
     r = sr.Recognizer()
     
     # Condition to stop loop
@@ -31,7 +31,7 @@ def wait_for_call(key_start, key_end, language, loop='bool'):
             idle_english(key_start, key_end)
         elif 'fr' in language:
             idle_french(key_start, key_end)
-        while condition: 
+        while condition and flag: 
             audio = r.listen(source)
             try:
                 text = r.recognize_google(audio, language=language)

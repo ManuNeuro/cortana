@@ -24,6 +24,7 @@ from win32api import GetSystemMetrics
 from itertools import count
 import gc
 import weakref
+import signal 
 
 basedir = os.path.dirname(__file__)
 
@@ -126,8 +127,8 @@ class MarkdownOutput:
 
     def launch_marketext(self):
         if self.poll == 0:
-            p = sp.Popen([self.programpath, self.filepath])
-            self.poll = p.poll()
+            self.process = sp.Popen([self.programpath, self.filepath])
+            self.poll = self.process.poll()
         elif self.poll is None:
             pass
         
@@ -171,7 +172,7 @@ class CortanaApp(tk.Frame):
         self.entry_prompt = tk.Text(self.root, width="1", font=self.myfont)
         self.entry_prompt.place(relx=0.01, rely=0.66, width=635, height=175)
         
-        entry_label_text = ttk.Label(self.root, text="↓ Enter you question here ↓")
+        entry_label_text = ttk.Label(self.root, text="↓ Enter your question here ↓")
         entry_label_text.place(relx=0.01, rely=0.63)
 
         # Rerouting all output to markdown file        
@@ -212,9 +213,9 @@ class CortanaApp(tk.Frame):
             bg_image = Image.open("./images/cover1.jpg")
             resized_img=bg_image.resize(self.monitor_size(0.5, 0.55), Image.LANCZOS)
             self.bg_image=ImageTk.PhotoImage(resized_img)
-            bg_label = ttk.Label(self.root, image=self.bg_image)
-            bg_label.grid(row = 0, column = 0, sticky = 'ne',)
-            bg_label.place(relx=0, rely=0)
+            self.bg_label = ttk.Label(self.root, image=self.bg_image)
+            self.bg_label.grid(row = 0, column = 0, sticky = 'ne',)
+            self.bg_label.place(relx=0, rely=0)
             
             self.create_widgets_gif('cortana_opening')
 
@@ -233,15 +234,30 @@ class CortanaApp(tk.Frame):
           
     def talk_with_cortana(self, **kwargs):
         self.my_cortana.talk_with_cortana(**kwargs)
-
+        
     def chat_with_cortana(self, *args, **kwargs):
         self.my_cortana.submit_prompt(*args, _voice=False, **kwargs)
-    
+        '''
+        In theory the following code should kill the app and launch it again as
+        soon as the answer is generated, but this won't work if there are
+        multiple tabs open in marktext. 
+        
+        At the end of the day, I prefer to have to do the refresh manually than
+        the app having to load over and over each time there is an answer.
+        
+        Add this code if you want the "auto-reload":
+        
+        self.markdown_output.process.terminate()
+        self.markdown_output.process = sp.Popen([self.markdown_output.programpath, 
+                                                  self.markdown_output.filepath])
+        '''
+                      
     def start_talk(self):
         with open('./model/parameters.json') as json_file:
             kwargs = json.load(json_file)
             
         # Create a separate thread to run the on_button_click function
+        self.my_cortana.flag = True
         threading.Thread(target=self.talk_with_cortana, kwargs=kwargs).start()
         
     def start_chat(self, input_text):
@@ -379,10 +395,54 @@ class CortanaApp(tk.Frame):
                                       command=lambda:sp.Popen([self.open_param, self.param_path]))
         self.button_param.place(relx=0.825, rely=0.601)
     
+    def buttons_regular(self):
+        self.button_fr = ttk.Button(self.root, text="En", command=lambda:self.regular_cortana('english', api_key=self.get_api_key()))
+        self.button_en = ttk.Button(self.root, text="Fr", command=lambda:self.regular_cortana('french', api_key=self.get_api_key()))
+        self.button_fr.place(relx=0.1, rely=0.05, anchor="center")
+        self.button_en.place(relx=0.1, rely=0.1, anchor="center")
+        self.button_param = tk.Button(self.root, text = 'Parameters', image=self.img_param.image, borderwidth=0, pady=0, padx=0, background="#13273a",
+                                      command=lambda:sp.Popen([self.open_param, self.param_path]))
+        self.button_param.place(relx=0.825, rely=0.601)
+        self.regular_app_button()
+        
+    def active_mode(self):
+        # Set background image
+        bg_image = Image.open("./images/cover-rec.png")
+        resized_img=bg_image.resize(self.monitor_size(0.5, 0.55), Image.LANCZOS)
+        self.bg_image=ImageTk.PhotoImage(resized_img)
+        self.bg_label = ttk.Label(self.root, image=self.bg_image)
+        self.bg_label.grid(row = 0, column = 0, sticky = 'ne',)
+        self.bg_label.place(relx=0, rely=0)
+        
+        if not hasattr(self, "img_record"):
+            self.img_record = create_icon("recording.png")
+        self.button_talk = tk.Button(self.root, text = 'Talk!', image=self.img_record.image, borderwidth=0, pady=0, padx=0, background="#13273a", 
+                             command=lambda:self.stop_active_mode())
+        self.button_talk.place(relx=0.935, rely=0.601)
+        self.start_talk()
+        
+    def stop_active_mode(self):
+        self.my_cortana.flag = False
+        self.button_talk = tk.Button(self.root, text = 'Talk!', image=self.img_talk.image, borderwidth=0, pady=0, padx=0, background="#13273a", 
+                             command=lambda:self.active_mode())
+        self.button_talk.place(relx=0.935, rely=0.601)
+        # Set background image
+        bg_image = Image.open("./images/cover1.jpg")
+        resized_img=bg_image.resize(self.monitor_size(0.5, 0.55), Image.LANCZOS)
+        self.bg_image=ImageTk.PhotoImage(resized_img)
+        self.bg_label = ttk.Label(self.root, image=self.bg_image)
+        self.bg_label.grid(row = 0, column = 0, sticky = 'ne',)
+        self.bg_label.place(relx=0, rely=0)
+        self.buttons_regular()
+        
     def regular_app_button(self):
-        self.lang_label.place_forget()
-        self.param_label.place_forget()
-
+        if self.lang_label is not None:
+            self.lang_label.place_forget()
+            self.param_label.place_forget()
+        else:
+            self.lang_label = None
+            self.param_label = None
+            
         if not hasattr(self, "img_talk"):
             self.img_talk = create_icon("icon1.png")
         
@@ -404,7 +464,7 @@ class CortanaApp(tk.Frame):
         self.button_enter = ttk.Button(self.root, text="Enter", width=100, 
                              command=lambda:self.start_chat(self.entry_prompt.get("1.0" , END)), )
         self.button_talk = tk.Button(self.root, text = 'Talk!', image=self.img_talk.image, borderwidth=0, pady=0, padx=0, background="#13273a", 
-                             command=lambda:self.start_talk())
+                             command=lambda:self.active_mode())
         self.button_file = ttk.Button(self.root, text = 'Open file', image=self.img_open.image, #borderwidth=0, pady=0, padx=0, background="white",
                              command=lambda:sp.Popen([programName, f'./results/{self.filename}.md']))
         self.button_folder = tk.Button(self.root, text = 'Folder', image=self.img_folder.image, borderwidth=0, pady=0, padx=0, background="#13273a",
@@ -455,6 +515,11 @@ class CortanaApp(tk.Frame):
         self.my_cortana = cortana(name, language, api_key=api_key)
         self.gif.unload()
         self.regular_app_button()
+    
+    def regular_cortana(self, language, api_key):
+        name = "gpt-4"
+        api_key = None
+        self.my_cortana = cortana(name, language, api_key=api_key)
     
     def get_api_key(self):
         try:

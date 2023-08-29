@@ -34,6 +34,7 @@ class cortana():
         self.answers = predefined_answers[language]
         self.reset_messages(role)
         self.log = None
+        self.flag = True
 
     def set_language(self, language):
                 
@@ -184,16 +185,19 @@ class cortana():
                 command = None
             
             # Send the text to cortana
-            if (command is None) and (text is not None and success):
-                self.listen_cortana(text, **kwargs)            
-            # Put cortana in pause
-            elif (command =='activated_pause') or (text is None):
-                self.voice_cortana(self.answers['text_idle'], **kwargs['voice'])
-                condition = wait_for_call('Cortana', self.answers['commands']['idle_quit'], language)
-                if condition:
-                    self.voice_cortana(self.answers['response'], **kwargs['voice'])
+            if self.flag:
+                if (command is None) and (text is not None and success):
+                    self.listen_cortana(text, **kwargs)            
+                # Put cortana in pause
+                elif (command =='activated_pause') or (text is None):
+                    self.voice_cortana(self.answers['text_idle'], **kwargs['voice'])
+                    condition = wait_for_call('Cortana', self.answers['commands']['idle_quit'], language)
+                    if condition:
+                        self.voice_cortana(self.answers['response'], **kwargs['voice'])
             # Shut down cortana
             elif command =='activated_quit':
+                condition = False
+            elif not self.flag:
                 condition = False
         self.voice_cortana(self.answers['text_close'])
         print('                  ---- Protocol Terminated ----')
