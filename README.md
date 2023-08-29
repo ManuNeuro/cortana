@@ -1,6 +1,6 @@
 # Cortana
 
- A fun project to be able to interact with ChatGPT with audio
+ It is a project to interact with ChatGPT4 with audio, and it allows programmers to have the response in their favourite markdown editor.
 
 ## Installing
 
@@ -14,7 +14,7 @@ Here are the cool features I implemented:
 
 - Markdown reader (by default, it's Mark text, you can change it for whatever you want)
 - Multi-discussion (select any file you want)
-- Voice and text (you can activate an inline discussion as if you were discussing with Cortana, ... however it's slow!)
+- Voice and text (you can activate the active mode, an audio discussion as if you were discussing with Cortana... however, it's slow!)
 - Prompt Image (using the command `Prompt image` and then asking for whatever you want is going to create images)
 
 ## Language
@@ -23,11 +23,13 @@ By default, the language is English, but you can use French as well. To do so, y
 
 ## API key
 
-You need to create a file `api_key.py` inside which you have `secret_key` with the API provided in your openIA account. 
+You need to provide the API key delivered in your openIA account. You will be prompted to do so directly in the interface of the app, and then the key is going to be encrypted before it's saved.
 
 ## Video presentation
 
-Check my amateur [video presentation](https://youtu.be/IIm2TONVlyU), presenting the app's last update!
+Check my amateur [video presentation](https://youtu.be/IIm2TONVlyU), presenting the app's previous update! 
+
+Once I updated the STT and TTS, I will be recording one of **the first podcasts showcasing the capabilities of an AI!**
 
 ## News
 
