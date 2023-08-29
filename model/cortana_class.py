@@ -7,6 +7,7 @@ import webbrowser
 import numpy as np
 import pathlib
 import os
+import json 
 
 class cortana():
     def __init__(self, model_name=None,  language='english', role=None, api_key=None,):
@@ -133,7 +134,7 @@ class cortana():
             text_to_speech_gtts(text, language=language)
     
     def listen_cortana(self, *args, **kwargs):
-        self.submit_prompt(*args, **kwargs)
+        self.submit_prompt(*args, _voice=True, **kwargs)
         self.voice_cortana(self.last_answer, **kwargs['voice'])
     
     def cortana_listen(self):
@@ -197,10 +198,18 @@ class cortana():
         self.voice_cortana(self.answers['text_close'])
         print('                  ---- Protocol Terminated ----')
         
-    def submit_prompt(self, input_text, **kwargs):
+    def submit_prompt(self, input_text, _voice=False, **kwargs):
         
         # Check if a specific command has been used
         command = text_command_detector(input_text, self.language)
+        
+
+        with open('./model/preprompt.json') as json_file:
+            preprompt = json.load(json_file)
+        if not _voice: # Specific preprompt when generating text (no audio)
+            self.messages.append({'role': "system", "content":self.answers['role']+'. '+preprompt['text']})
+        else:
+            self.messages.append({'role': "system", "content":self.answers['role']+'. '+preprompt['voice']})
         
         # If prompt image
         if command is not None:
@@ -241,7 +250,7 @@ class cortana():
     def show_log(self):
         print(self.log)
     
-    def reset_messages(self, role=None):
+    def reset_messages(self, voice, role=None):
         if role is None:
             role = self.answers['role']
         self.messages=[{'role': "system", "content":role}]

@@ -152,3 +152,5 @@ cython_debug/
 #.idea/
 api_key.py
 *.md
+api/encrypted_key.json
+api/encrypted_key.npy

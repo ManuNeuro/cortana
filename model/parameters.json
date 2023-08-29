@@ -8,6 +8,11 @@
     "temperature": 0.4
   },
   "voice": {
-    "option_talk": "gtts"
+    "option_talk": "gtts",
+    "//comment": "for faster answer, use pyttsx3 (english only)"
+  },
+  "app": {
+	"programName": "C:\\Program Files\\MarkText\\MarkText.exe",
+	"openParam": "notepad"
   }
 }
