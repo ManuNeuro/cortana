@@ -191,7 +191,7 @@ class cortana():
                 # Put cortana in pause
                 elif (command =='activated_pause') or (text is None):
                     self.voice_cortana(self.answers['text_idle'], **kwargs['voice'])
-                    condition = wait_for_call('Cortana', self.answers['commands']['idle_quit'], language)
+                    condition = wait_for_call('Cortana', self.answers['commands']['idle_quit'], language, flag=self.flag)
                     if condition:
                         self.voice_cortana(self.answers['response'], **kwargs['voice'])
             # Shut down cortana

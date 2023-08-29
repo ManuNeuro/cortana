@@ -38,11 +38,11 @@ Once I updated the STT and TTS, I will be recording one of **the first podcasts 
 - [x] Simplification of app launching
 - [x] Adding preprompt options (persona, text, voice, role)
 - [x] Adding API key manager + encryption
+- [x] Adding a light icon when Cortana is in the active mode
+- [x] Adding a shutdown button when in active mode
 
 **In the future:**
 
 - [ ] Adding more option for speech-to-text and text-to-speech.
 - [ ] Adding pre-defined persona and roles in selection directly in the app
-- [ ] Adding a light icon when Cortana is listening in the active mode
-- [ ] Adding a shutdown button when in active mode
 - [ ] Adding a voice and record button to use with the passive mode
