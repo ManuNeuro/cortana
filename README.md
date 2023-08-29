@@ -29,6 +29,8 @@ You need to provide the API key delivered in your openIA account. You will be pr
 
 Check my amateur [video presentation](https://youtu.be/IIm2TONVlyU), presenting the app's previous update!
 
+Once I updated the STT and TTS, I will be recording one of **the first podcasts showcasing the capabilities of an AI!**
+
 ## News
 
 **Done:**
