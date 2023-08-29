@@ -27,7 +27,7 @@ You need to provide the API key delivered in your openIA account. You will be pr
 
 ## Video presentation
 
-Check my amateur [video presentation](https://youtu.be/IIm2TONVlyU), presenting the app's last update!
+Check my amateur [video presentation](https://youtu.be/IIm2TONVlyU), presenting the app's previous update!
 
 ## News
 
