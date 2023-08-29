@@ -1,8 +1,9 @@
 # Cortana
+
  A fun project to be able to interact with ChatGPT with audio
 
-
 ## Installing
+
 ```
 $ pip install -r requirements.txt
 ```
@@ -16,12 +17,12 @@ Here are the cool features I implemented:
 - Voice and text (you can activate an inline discussion as if you were discussing with Cortana, ... however it's slow!)
 - Prompt Image (using the command `Prompt image` and then asking for whatever you want is going to create images)
 
-
 ## Language
 
 By default, the language is English, but you can use French as well. To do so, you have to add the extension of Sphinx for [french](https://github.com/Uberi/speech_recognition/blob/master/reference/pocketsphinx.rst) into the appropriate folder: `speech_recognition\pocketsphinx-data\fr-FR`
 
 ## API key
+
 You need to create a file `api_key.py` inside which you have `secret_key` with the API provided in your openIA account. 
 
 ## Video presentation
@@ -30,4 +31,20 @@ Check my amateur [video presentation](https://youtu.be/IIm2TONVlyU), presenting 
 
 ## News
 
-The app is going to be launched soon!
+Done:
+
+- Simplification of app launching 
+
+- Adding preprompt options (persona, text, voice, role) 
+
+- Adding API key manager + encryption
+
+In the future:
+
+- Adding more option for speech-to-text and text-to-speech.
+
+- Adding pre-defined persona and roles in selection directly in the app
+
+- Adding a light icon when Cortana is listening in the active conversation
+
+- Adding a voice and record button to use with the passive conversation
