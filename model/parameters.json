@@ -8,8 +8,15 @@
     "temperature": 0.4
   },
   "voice": {
-    "option_talk": "gtts",
-    "//comment": "for faster answer, use pyttsx3 (english only)"
+    "stt_option": "whisper",
+    "model": "medium",
+    "//comment": "for faster transcription, use sphynx or whisper, better quality google",
+    "timeout": 3,
+    "//comment": "Time in second before speech recognition stop, during silence",
+    "nbtrial": 2,
+    "//comment": "Number of time the speech-to-text algo is trying to catch your voice after it failed",
+    "tts_option": "gtts",
+    "//comment": "for faster voice generation, use pyttsx3 (english only)"
   },
   "app": {
 	"programName": "C:\\Program Files\\MarkText\\MarkText.exe",

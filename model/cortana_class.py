@@ -1,7 +1,7 @@
 import os
 import openai
 from cortana.model.text_to_audio import text_to_speech_pyttsx3, text_to_speech_gtts
-from cortana.model.audio_to_text import speech_to_text_google, wait_for_call
+from cortana.model.audio_to_text import stt_google, stt_sphinx, stt_whisper, wait_for_call
 from cortana.model.predefined_answers import predefined_answers, text_command_detector
 import webbrowser
 import numpy as np
@@ -122,9 +122,9 @@ class cortana():
         return urls
         
     def voice_cortana(self, text, **kwargs):
-        option_talk = kwargs.get('option_talk', 'pyttsx3')
+        tts_option = kwargs.get('tts_option', 'pyttsx3')
         if self.option_talk is None:
-            self.option_talk = option_talk
+            self.option_talk = tts_option
                 
         if self.option_talk=="pyttsx3":
             if self.name is None:
@@ -138,17 +138,29 @@ class cortana():
         self.submit_prompt(*args, _voice=True, **kwargs)
         self.voice_cortana(self.last_answer, **kwargs['voice'])
     
-    def cortana_listen(self):
+    def cortana_listen(self, stt_option='google', nbtrial=2, timeout=4, flag=True, **kwargs):
+        
         if self.language == 'english':
             language = 'en-US'
         elif self.language == 'french':
             language = 'fr-FR'
+            if stt_option == 'sphinx':
+                stt_option == 'whisper'
         success=False
+        text = None
         counter=0
-        while not success and counter<2:
+        while not success and counter<nbtrial and flag:
             counter+=1 # Increment counter
             print(self.answers['listening'])
-            response = speech_to_text_google(language)
+            if stt_option == 'sphynx': # Only working in english
+                response = stt_sphinx(timeout)
+            elif stt_option == 'google':
+                response = stt_google(language, timeout)
+            elif stt_option == 'whisper':
+                model = kwargs.get('model', 'base')
+                response = stt_whisper(model, timeout)
+            else:
+                raise Exception(f'Model {stt_option} of speech-to-text recognition not implemented.')
             success = response['success']
             if success:
                 text = response['transcription']
@@ -162,21 +174,29 @@ class cortana():
     
     def talk_with_cortana(self, **kwargs):
         
+        with open('./model/parameters.json') as json_file:
+            parameters = json.load(json_file)
+        stt_nbtrial = parameters['voice'].get('nbtrial', 2) # Number of trial for the speech-to-text
+        stt_option = parameters['voice'].get('stt_option', 'google')
+        stt_timeout = parameters['voice'].get('timeout', 3)
+        stt_model = parameters['voice'].get('model', 'base')
+        
         # Language selector
         if self.language == 'english':
             language = 'en-US'
         elif self.language == 'french':
             language = 'fr-FR'
             # For french you must choose google to-text-speech
-            if kwargs['voice'].get('option_talk', 'gtts') != 'gtts':
-                kwargs['option_talk'] = 'gtts'
+            if kwargs['voice'].get('stt_option', 'gtts') != 'gtts':
+                kwargs['stt_option'] = 'gtts'
         
         # Welcoming message
         self.voice_cortana(self.answers['text_start'], **kwargs['voice'])
         condition = True
         while condition:
             # Get the text from your audio speech
-            text, success = self.cortana_listen()
+            text, success = self.cortana_listen(stt_option=stt_option, nbtrial=stt_nbtrial, 
+                                                timeout=stt_timeout, flag=self.flag, model=stt_model)
             
             # Check if a specific command has been used
             if text is not None:
@@ -191,22 +211,23 @@ class cortana():
                 # Put cortana in pause
                 elif (command =='activated_pause') or (text is None):
                     self.voice_cortana(self.answers['text_idle'], **kwargs['voice'])
-                    condition = wait_for_call('Cortana', self.answers['commands']['idle_quit'], language, flag=self.flag)
+                    condition = wait_for_call(self, 'Cortana', self.answers['commands']['idle_quit'], language)
                     if condition:
                         self.voice_cortana(self.answers['response'], **kwargs['voice'])
-            # Shut down cortana
-            elif command =='activated_quit':
+                # Shut down cortana
+                elif command =='activated_quit':
+                    condition = False
+            else:
                 condition = False
-            elif not self.flag:
-                condition = False
+        self.flag = False
         self.voice_cortana(self.answers['text_close'])
         print('                  ---- Protocol Terminated ----')
+        
         
     def submit_prompt(self, input_text, _voice=False, **kwargs):
         
         # Check if a specific command has been used
         command = text_command_detector(input_text, self.language)
-        
 
         with open('./model/preprompt.json') as json_file:
             preprompt = json.load(json_file)
