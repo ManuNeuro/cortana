@@ -1,6 +1,6 @@
 import os
 import openai
-from cortana.model.text_to_audio import text_to_speech_pyttsx3, text_to_speech_gtts
+from cortana.model.text_to_audio import text_to_speech_pyttsx3, text_to_speech_TTS, text_to_speech_gtts
 from cortana.model.audio_to_text import stt_google, stt_sphinx, stt_whisper, wait_for_call
 from cortana.model.predefined_answers import predefined_answers, text_command_detector
 import webbrowser
@@ -10,9 +10,9 @@ import os
 import json 
 
 class cortana():
-    def __init__(self, model_name=None,  language='english', role=None, api_key=None,):
+    def __init__(self, model_name=None,  language='english', role='Generic', api_key=None,):
         print('------- \n')
-        print(f'# Cortana ({language}) \n')
+        print(f'# Cortana + {model_name} ({language}) \n')
         print('------- \n')
         print('$~~~~~~~~~~~$')
         if api_key is None or api_key=='':
@@ -23,7 +23,9 @@ class cortana():
         # Model to use
         if model_name is not None:
             self.model_name = model_name
-        
+        if role is not None:
+            self.role = role
+
         # Option of voice
         self.option_talk = None
         self.name = None
@@ -54,7 +56,11 @@ class cortana():
         res = openai.Model.list()
         list_name = [model['id'] for model in res['data']]
         print(list_name)
-        
+    
+    def set_role(self, role):
+        self.role = role
+        print(f'*>> I changed my role to {self.role}.*')
+
     def set_model(self, model_name=None):
         if model_name is None:
             print('All models available: \n')
@@ -62,9 +68,9 @@ class cortana():
             print('----- \n')
             print('Choose the model:')
             model_name = input()
-        
         self.model_name = model_name
-                
+        print(f'*>> I changed my model to {self.model_name}.*')
+
     def prompt(self, input_, _print=True, **kwargs):
         # Parameters
         if not isinstance(input_, str):
@@ -122,17 +128,25 @@ class cortana():
         return urls
         
     def voice_cortana(self, text, **kwargs):
-        tts_option = kwargs.get('tts_option', 'pyttsx3')
-        if self.option_talk is None:
-            self.option_talk = tts_option
+        tts_option = kwargs['tts'].get('option', 'gtts')
+        tts_model = kwargs['tts'].get('model', None)
+        
+        if self.language == 'french':
+            if tts_option == 'pyttsx3': # Can't use pyttsx3 for french, default is gtts
+                tts_option == 'gtts'
+        
+        self.option_talk = tts_option
                 
         if self.option_talk=="pyttsx3":
             if self.name is None:
-                self.name = kwargs.get('name', 'Zira')
+                self.name = kwargs.get('model', 'Zira')
             text_to_speech_pyttsx3(text, self.name)
         elif self.option_talk=="gtts":
             language = self.set_language(kwargs.get('language', self.language))
             text_to_speech_gtts(text, language=language)
+        elif self.option_talk=='tts':
+            language = self.set_language(kwargs.get('language', self.language))
+            text_to_speech_TTS(text, language=language, model=tts_model)
     
     def listen_cortana(self, *args, **kwargs):
         self.submit_prompt(*args, _voice=True, **kwargs)
@@ -145,14 +159,14 @@ class cortana():
         elif self.language == 'french':
             language = 'fr-FR'
             if stt_option == 'sphinx':
-                stt_option == 'whisper'
+                stt_option == 'google'
         success=False
         text = None
         counter=0
         while not success and counter<nbtrial and flag:
             counter+=1 # Increment counter
             print(self.answers['listening'])
-            if stt_option == 'sphynx': # Only working in english
+            if stt_option == 'sphinx': # Only working in english
                 response = stt_sphinx(timeout)
             elif stt_option == 'google':
                 response = stt_google(language, timeout)
@@ -166,7 +180,7 @@ class cortana():
                 text = response['transcription']
             else:
                 text = self.answers['error']
-                self.voice_cortana(text)
+                # self.voice_cortana(text)
                 text = None
             if response['error'] is not None:
                 text = None
@@ -176,18 +190,19 @@ class cortana():
         
         with open('./model/parameters.json') as json_file:
             parameters = json.load(json_file)
-        stt_nbtrial = parameters['voice'].get('nbtrial', 2) # Number of trial for the speech-to-text
-        stt_option = parameters['voice'].get('stt_option', 'google')
-        stt_timeout = parameters['voice'].get('timeout', 3)
-        stt_model = parameters['voice'].get('model', 'base')
+        stt_option = parameters['voice']['stt'].get('option', 'google')
+        stt_timeout = parameters['voice']['stt'].get('timeout', 3)
+        stt_nbtrial = parameters['voice']['stt'].get('nbtrial', 2) # Number of trial for the speech-to-text
+        stt_model = parameters['voice']['stt'].get('model', 'base')
+        tts_option = parameters['voice']['tts'].get('option', 'google')
         
         # Language selector
         if self.language == 'english':
             language = 'en-US'
         elif self.language == 'french':
             language = 'fr-FR'
-            # For french you must choose google to-text-speech
-            if kwargs['voice'].get('stt_option', 'gtts') != 'gtts':
+            # For french you can't use pyttsx3 ! Default gtts will be used.
+            if kwargs['voice']['stt'].get('option', 'gtts') == 'pyttsx3':
                 kwargs['stt_option'] = 'gtts'
         
         # Welcoming message
@@ -220,7 +235,7 @@ class cortana():
             else:
                 condition = False
         self.flag = False
-        self.voice_cortana(self.answers['text_close'])
+        self.voice_cortana(self.answers['text_close'], **kwargs['voice'])
         print('                  ---- Protocol Terminated ----')
         
         
@@ -231,10 +246,11 @@ class cortana():
 
         with open('./model/preprompt.json') as json_file:
             preprompt = json.load(json_file)
+        model_spec = f' If prompted which model you use: I use OpenAI model: {self.model_name}.'
         if not _voice: # Specific preprompt when generating text (no audio)
-            self.messages.append({'role': "system", "content":self.answers['role']+'. '+preprompt['text']})
+            self.messages.append({'role': "system", "content":'For this question, your role is explicitly: '+preprompt['roles'][self.role]+'. '+preprompt['text']+model_spec})
         else:
-            self.messages.append({'role': "system", "content":self.answers['role']+'. '+preprompt['voice']})
+            self.messages.append({'role': "system", "content":'For this question, your role is explicitly: '+preprompt['roles'][self.role]+'. '+preprompt['voice']+model_spec})
         
         # If prompt image
         if command is not None:
@@ -243,14 +259,6 @@ class cortana():
                 print(self.answers['prompt_image'])
                 input_text = input_text.split('Prompt image')[1]
                 self.prompt_image(input_text, **kwargs)
-                return True
-            elif 'exit' in command:
-                print(self.answers['text_close'])
-                print('                  ---- Protocol Terminated ----')
-                return False
-            elif 'save' in command:
-                self.save_messages()
-                print('Saving all messages')
                 return True
             else:
                 print("I didn't understand your prompt, please reformulate.")
@@ -261,7 +269,6 @@ class cortana():
             return True
 
     def save_messages(self):
-        # try:
         rnd = np.random.randint(0, 1000000, 1)
         results_dir = pathlib.Path('./results/')
         if not os.path.isdir(results_dir): # Check directory is not existing
@@ -269,9 +276,7 @@ class cortana():
         file = open(f'{results_dir}/prompts_{rnd}.txt', 'wt')
         file.write(str(self.messages))
         file.close()
-        # except:
-        #     print("Unable to write to file")
-    
+
     def show_log(self):
         print(self.log)
     

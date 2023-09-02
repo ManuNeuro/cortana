@@ -49,7 +49,7 @@ def stt_sphinx(timeout=4):
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source,timeout=timeout)
-        print("*...Recording complete!*")
+        print("*>> Recording complete!*")
 
     # set up the response object
     response = {
@@ -60,7 +60,7 @@ def stt_sphinx(timeout=4):
 
     try:
         response["transcription"] = recognizer.recognize_sphinx(audio)
-        print("*...Transcription complete!*")
+        print("*>> Transcription complete!*")
     except sr.RequestError:
         # API was unreachable or unresponsive
         response["success"] = False
@@ -78,7 +78,7 @@ def stt_google(language, timeout):
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source, timeout=timeout)
-        print("*...Recording complete!*")
+        print("*>> Recording complete!*")
         
     # set up the response object
     response = {
@@ -89,7 +89,7 @@ def stt_google(language, timeout):
 
     try:
         response["transcription"] = recognizer.recognize_google(audio, language=language)
-        print("*...Transcription complete!*")
+        print("*>> Transcription complete!*")
     except sr.RequestError:
         # API was unreachable or unresponsive
         response["success"] = False
@@ -105,7 +105,7 @@ def record_audio(timeout=4):
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source, timeout=timeout)
-        print("...Recording complete!")
+        print("*>> Recording complete!*")
     
     # save to temporary file
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
@@ -133,7 +133,7 @@ def stt_whisper(model='base', timeout=4):
     try:
         result = ws.transcribe(model, audio_file, fp16=False)
         response["transcription"] = result['text']
-        print("*...Transcription complete!*")
+        print("*>> Transcription complete!*")
     except Exception as e:
         response["success"] = False
         response["error"] = str('An error occured:', e)

@@ -11,7 +11,7 @@ with open('./model/preprompt.json') as json_file:
 
 
 predefined_answers = {'english':{'error':"Sorry, I did not understood your request.",
-                                 'text_start':"Hello, I am Cortana, your personal AI assistant, how can I help you?",
+                                 'text_start':"Hello, I am Cortana, your smart assistant, how can I help you?",
                                  'text_idle':"I am putting myself into IDLE, wake me, when you need me.",
                                  'text_close':"I am shutting down my systems, bye",
                                  'prompt_image':"Please wait, I will generate an image",

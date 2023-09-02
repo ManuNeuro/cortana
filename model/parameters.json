@@ -8,15 +8,19 @@
     "temperature": 0.4
   },
   "voice": {
-    "stt_option": "whisper",
-    "model": "medium",
-    "//comment": "for faster transcription, use sphynx or whisper, better quality google",
-    "timeout": 3,
-    "//comment": "Time in second before speech recognition stop, during silence",
-    "nbtrial": 2,
-    "//comment": "Number of time the speech-to-text algo is trying to catch your voice after it failed",
-    "tts_option": "gtts",
-    "//comment": "for faster voice generation, use pyttsx3 (english only)"
+      "stt": {
+          "option": "google",
+          "model": "medium",
+          "//comment": "for faster transcription use 'sphynx', better quality 'whisper', higher quality 'google'",
+          "timeout": 3,
+          "//comment": "Time in second before speech recognition stop, during silence",
+          "nbtrial": 1,
+          "//comment": "Number of time the speech-to-text algo is trying to catch your voice after it failed"
+      },
+      "tts": {
+          "option": "pyttsx3",
+          "//comment": "for faster voice generation use 'pyttsx3' (english only), for AI generated voice use 'tts', slow but higher quality 'gtts'"
+      }
   },
   "app": {
 	"programName": "C:\\Program Files\\MarkText\\MarkText.exe",

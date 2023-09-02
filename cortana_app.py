@@ -34,12 +34,12 @@ with open('./model/parameters.json') as json_file:
 programName = kwargs['app']['programName']
 openParam = kwargs['app']['openParam']
 
-try:
-    from ctypes import windll  # Only exists on Windows.
-    myappid = "dorean.cortana.gpt4.0.1"
-    windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
-except ImportError:
-    pass
+# try:
+#     from ctypes import windll  # Only exists on Windows.
+#     myappid = "dorean.cortana.gpt4.0.1"
+#     windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+# except ImportError:
+#     pass
 
 def create_icon(filename, icon_sizes = [(64,64)]):
     img = Image.open(f"./images/{filename}.png")
@@ -155,13 +155,18 @@ class CortanaApp(tk.Frame):
         self.root = root
         
         self.root.geometry(window_size_str())
-        self.root.title("Cortana + chatGPT4")
+        self.root.title("CortanaGPT")
+        # Get screen size
+        self.screen_width = self.root.winfo_screenwidth()
+        self.screen_height = self.root.winfo_screenheight()
         self.root.configure(background = "#13273a")
         self.style = ThemedStyle(self.root)
         self.style.set_theme("breeze")
         self.myfont = font.Font(family="Helvetica", size=14)
         self.root.iconbitmap("icon.ico")
+        self.autoreload = tk.IntVar(value=0)
         
+
         # Initialization the app
         self.def_load()
         
@@ -170,7 +175,8 @@ class CortanaApp(tk.Frame):
         
         # Interactive text box to chat with cortana
         self.entry_prompt = tk.Text(self.root, width="1", font=self.myfont)
-        self.entry_prompt.place(relx=0.01, rely=0.66, width=635, height=175)
+        self.entry_prompt.place(relx=0.01, rely=0.66, width=self.screen_width*0.49,
+                                height=self.screen_height*0.25)
         
         entry_label_text = ttk.Label(self.root, text="↓ Enter your question here ↓")
         entry_label_text.place(relx=0.01, rely=0.63)
@@ -201,7 +207,7 @@ class CortanaApp(tk.Frame):
         sp.Popen([programName, f'./results/{self.filename}.md'])
         self.markdown_output = MarkdownOutput(self.filename, last_messages)
         sys.stdout = self.markdown_output
-        
+
     def def_load(self):
         if not hasattr(self, "filename"):
             self.new_filename()
@@ -214,7 +220,7 @@ class CortanaApp(tk.Frame):
             resized_img=bg_image.resize(self.monitor_size(0.5, 0.55), Image.LANCZOS)
             self.bg_image=ImageTk.PhotoImage(resized_img)
             self.bg_label = ttk.Label(self.root, image=self.bg_image)
-            self.bg_label.grid(row = 0, column = 0, sticky = 'ne',)
+            self.bg_label.grid(row = 0, column = 0, sticky = 'new',)
             self.bg_label.place(relx=0, rely=0)
             
             self.create_widgets_gif('cortana_opening')
@@ -241,7 +247,6 @@ class CortanaApp(tk.Frame):
         
     def chat_with_cortana(self, *args, **kwargs):
         self.my_cortana.submit_prompt(*args, _voice=False, **kwargs)
-        
         '''
         In theory the following code should kill the app and launch it again as
         soon as the answer is generated, but this won't work if there are
@@ -250,13 +255,13 @@ class CortanaApp(tk.Frame):
         At the end of the day, I prefer to have to do the refresh manually than
         the app having to load over and over each time there is an answer.
         
-        Add this code if you want the "auto-reload":
-        
-        self.markdown_output.process.terminate()
-        self.markdown_output.process = sp.Popen([self.markdown_output.programpath, 
-                                                  self.markdown_output.filepath])
+        Add the following code if you want the "auto-reload":
         '''
-                      
+        if self.autoreload.get():
+            self.markdown_output.process.terminate()
+            self.markdown_output.process = sp.Popen([self.markdown_output.programpath, 
+                                                     self.markdown_output.filepath])  
+        
     def start_talk(self):
         with open('./model/parameters.json') as json_file:
             kwargs = json.load(json_file)
@@ -274,14 +279,66 @@ class CortanaApp(tk.Frame):
         self.entry_prompt.delete("1.0" , END)
     
     def launching_app(self):
+        self.create_dropdown_model()
+        self.create_dropdown_role()
         self.button_language()
         self.button_parameter()  
+    
+    def create_dropdown_model(self):
+        # Dropdown menu options
+        options = [
+            "gpt-4",
+            "gpt-4-32k",
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-16k",
+        ]
+          
+        # Create Dropdown menu
+        self.drop_model = ttk.Combobox(state="readonly", values=options) 
+        self.drop_model.set("gpt-4")
+        self.change_model()
+        self.drop_model.place(relx=0.95, rely=0.05, anchor="center")
+        self.drop_model.bind("<<ComboboxSelected>>", self.change_model)
+    
+    def create_dropdown_role(self):
+        # Dropdown menu options
+        with open('./model/preprompt.json') as json_file:
+            kwargs = json.load(json_file)
+        roles = kwargs['roles']
+        options = [role for role in roles.keys()]
+          
+        # Create Dropdown menu
+        self.drop_role = ttk.Combobox(state="readonly", values=options) 
+        self.drop_role.set(options[0])
+        self.change_role()
+        self.drop_role.place(relx=0.95, rely=0.1, anchor="center")
+        self.drop_role.bind("<<ComboboxSelected>>", self.change_role)    
+    
+    def change_role(self, event=None):
+        self.role = self.drop_role.get()
+        if event is not None:
+            # tk.messagebox.showinfo(
+            #     title="Model Selection",
+            #     message=f"Selected role: {self.role}"
+            # )
+            if hasattr(self, "my_cortana"):
+                self.my_cortana.set_role(self.role)
+
+    def change_model(self, event=None):
+        self.model_name = self.drop_model.get()
+        if event is not None:
+            # tk.messagebox.showinfo(
+            #     title="Model Selection",
+            #     message=f"Selected model: {self.model_name}"
+            # )
+            if hasattr(self, "my_cortana"):
+                self.my_cortana.set_model(self.model_name)
 
     def button_language(self):
         self.lang_label = tk.Label(self.root, text="Select language!")
         self.lang_label.place(relx=0.1, rely=0.17, anchor="center")
-        self.button_fr = ttk.Button(self.root, text="En", command=lambda:self.launch_cortana('english', api_key=self.get_api_key()))
-        self.button_en = ttk.Button(self.root, text="Fr", command=lambda:self.launch_cortana('french', api_key=self.get_api_key()))
+        self.button_fr = ttk.Button(self.root, text="En", command=lambda:self.launch_cortana('english', api_key=self.get_api_key(), role=self.role))
+        self.button_en = ttk.Button(self.root, text="Fr", command=lambda:self.launch_cortana('french', api_key=self.get_api_key(), role=self.role))
         self.button_fr.place(relx=0.1, rely=0.05, anchor="center")
         self.button_en.place(relx=0.1, rely=0.1, anchor="center")
     
@@ -310,20 +367,21 @@ class CortanaApp(tk.Frame):
         resized_img=bg_image.resize(self.monitor_size(0.5, 0.55), Image.LANCZOS)
         self.bg_image=ImageTk.PhotoImage(resized_img)
         self.bg_label = ttk.Label(self.root, image=self.bg_image)
-        self.bg_label.grid(row = 0, column = 0, sticky = 'ne',)
+        self.bg_label.grid(row = 0, column = 0, sticky = 'new',)
         self.bg_label.place(relx=0, rely=0)
-        
+        self.button_enter.place_forget()
+        self.drop_model.place_forget()
+        self.drop_model.place_forget()
+
         if not hasattr(self, "img_record"):
             self.img_record = create_icon("recording.png")
         self.button_talk = tk.Button(self.root, text = 'Talk!', image=self.img_record.image, borderwidth=0, pady=0, padx=0, background="#13273a", 
-                             command=lambda:self.deactivate_active_mode())
+                             command=lambda:self.stop_active_mode())
         self.button_talk.place(relx=0.935, rely=0.601)
         self.start_talk()
     
-    def deactivate_active_mode(self):
-        self.my_cortana.flag = False
-    
     def stop_active_mode(self):
+        self.my_cortana.flag = False
         self.button_talk = tk.Button(self.root, text = 'Talk!', image=self.img_talk.image, borderwidth=0, pady=0, padx=0, background="#13273a", 
                              command=lambda:self.active_mode())
         self.button_talk.place(relx=0.935, rely=0.601)
@@ -332,10 +390,12 @@ class CortanaApp(tk.Frame):
         resized_img=bg_image.resize(self.monitor_size(0.5, 0.55), Image.LANCZOS)
         self.bg_image=ImageTk.PhotoImage(resized_img)
         self.bg_label = ttk.Label(self.root, image=self.bg_image)
-        self.bg_label.grid(row = 0, column = 0, sticky = 'ne',)
+        self.bg_label.grid(row = 0, column = 0, sticky = 'new',)
         self.bg_label.place(relx=0, rely=0)
         self.buttons_regular()
-        
+        self.create_dropdown_model()
+        self.create_dropdown_role()
+    
     def regular_app_button(self):
         if self.lang_label is not None:
             self.lang_label.place_forget()
@@ -362,7 +422,7 @@ class CortanaApp(tk.Frame):
         if not hasattr(self, "img_preprompt"):
             self.img_preprompt = create_icon("preprompt.png")
             
-        self.button_enter = ttk.Button(self.root, text="Enter", width=100, 
+        self.button_enter = ttk.Button(self.root, text="Enter", width=self.screen_width, 
                              command=lambda:self.start_chat(self.entry_prompt.get("1.0" , END)), )
         self.button_talk = tk.Button(self.root, text = 'Talk!', image=self.img_talk.image, borderwidth=0, pady=0, padx=0, background="#13273a", 
                              command=lambda:self.active_mode())
@@ -376,14 +436,21 @@ class CortanaApp(tk.Frame):
                             command=lambda:self.load_from_file())
         self.button_preprompt = ttk.Button(self.root, text = 'PePrompt', image=self.img_preprompt.image, #borderwidth=0, pady=0, padx=0, background="#13273a",
                               command=lambda:sp.Popen([self.open_param, './model/preprompt.json']))
-        self.button_enter.place(relx=0.5, rely=0.96, anchor="center")
+        self.check_autoreload = ttk.Checkbutton(self.root, text='Auto Reload',variable=self.autoreload, onvalue=1, offvalue=0)
+        
         self.button_talk.place(relx=0.935, rely=0.601)
-        self.button_file.place(relx=0.905, rely=0.025)
         self.button_folder.place(relx=0.88, rely=0.601)
         self.button_new.place(relx=0.77, rely=0.601)
-        self.button_load.place(relx=0.905, rely=0.1)
+        
+        self.button_file.place(relx=0.8, rely=0.42)
+        self.button_load.place(relx=0.905, rely=0.42)
+        self.check_autoreload.place(relx=0.83, rely=0.51)
+        
         self.button_preprompt.place(relx=0.03, rely=0.51)
         self.create_button_api()
+    
+        self.button_enter.place(relx=0.5, rely=0.96, anchor="center", width=self.screen_width*0.49)
+        
     
     def create_button_api(self):
         if not hasattr(self, "img_api"):
@@ -410,17 +477,15 @@ class CortanaApp(tk.Frame):
         self.button_ok.pack_forget()
         self.create_button_api()
 
-    def launch_cortana(self, language, api_key):
-        name = "gpt-4"
+    def launch_cortana(self, language, api_key, role):
         api_key = None
-        self.my_cortana = cortana(name, language, api_key=api_key)
+        self.my_cortana = cortana(self.model_name, language, api_key=api_key, role=role)
         self.gif.unload()
         self.regular_app_button()
     
     def regular_cortana(self, language, api_key):
-        name = "gpt-4"
         api_key = None
-        self.my_cortana = cortana(name, language, api_key=api_key)
+        self.my_cortana = cortana(self.model_name, language, api_key=api_key)
     
     def get_api_key(self):
         try:
