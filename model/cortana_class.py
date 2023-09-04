@@ -99,7 +99,7 @@ class cortana():
             print('-------- \n')
             print(f'{os.getlogin()}: {self.last_input} \n')
             print('----------- \n')
-            print(f'Cortana: {self.last_answer} \n')
+            print(f'Cortana: \n{self.last_answer} \n')
             print('----------- \n')
             print('$~~~~~~~~~~~$')
             
@@ -132,8 +132,8 @@ class cortana():
         tts_model = kwargs['tts'].get('model', None)
         
         if self.language == 'french':
-            if tts_option == 'pyttsx3': # Can't use pyttsx3 for french, default is gtts
-                tts_option == 'gtts'
+            if tts_option == "pyttsx3": # Can't use pyttsx3 for french, default is gtts
+                tts_option = "gtts"
         
         self.option_talk = tts_option
                 
@@ -147,6 +147,8 @@ class cortana():
         elif self.option_talk=='tts':
             language = self.set_language(kwargs.get('language', self.language))
             text_to_speech_TTS(text, language=language, model=tts_model)
+        else:
+            raise Exception(f'Text-to-speech {self.option_talk} option is not supported.')
     
     def listen_cortana(self, *args, **kwargs):
         self.submit_prompt(*args, _voice=True, **kwargs)
@@ -248,9 +250,11 @@ class cortana():
             preprompt = json.load(json_file)
         model_spec = f' If prompted which model you use: I use OpenAI model: {self.model_name}.'
         if not _voice: # Specific preprompt when generating text (no audio)
-            self.messages.append({'role': "system", "content":'For this question, your role is explicitly: '+preprompt['roles'][self.role]+'. '+preprompt['text']+model_spec})
+            self.messages.append({'role': "system", "content":'Your specific role for this question is: '+preprompt['roles'][self.role]+\
+                                  '. If requested by the user, provide your specific role. '+preprompt['text']+model_spec})
         else:
-            self.messages.append({'role': "system", "content":'For this question, your role is explicitly: '+preprompt['roles'][self.role]+'. '+preprompt['voice']+model_spec})
+            self.messages.append({'role': "system", "content":'Your specific role for this question is: '+preprompt['roles'][self.role]+\
+                                  '. If requested by the user, provide your specific role. '+preprompt['voice']+model_spec})
         
         # If prompt image
         if command is not None:

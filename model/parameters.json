@@ -23,7 +23,7 @@
       }
   },
   "app": {
-	"programName": "C:\\Program Files\\MarkText\\MarkText.exe",
+	"markdown": "C:\\Program Files\\MarkText\\MarkText.exe",
 	"openParam": "notepad"
   }
 }
