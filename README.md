@@ -48,4 +48,5 @@ Once I updated the STT and TTS, I will be recording one of **the first podcasts 
 **In the future:**
 - [ ] Cleaning and factoring the codes
 - [ ] Test and debug functionalities
-- [ ] Adding a voice and record button to use with the passive mode
+- [ ] Adding markdown display in active mode
+- [ ] Adding a voice and record action in passive mode
