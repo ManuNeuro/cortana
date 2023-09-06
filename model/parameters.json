@@ -1,29 +1,29 @@
 {
-  "image": {
-    "n": 5,
-    "size": "1024x1024"
-  },
-  "text": {
-    "max_tokens": 1000,
-    "temperature": 0.4
-  },
-  "voice": {
-      "stt": {
-          "option": "google",
-          "model": "medium",
-          "//comment": "for faster transcription use 'sphynx', better quality 'whisper', higher quality 'google'",
-          "timeout": 3,
-          "//comment": "Time in second before speech recognition stop, during silence",
-          "nbtrial": 1,
-          "//comment": "Number of time the speech-to-text algo is trying to catch your voice after it failed"
-      },
-      "tts": {
-          "option": "pyttsx3",
-          "//comment": "for faster voice generation use 'pyttsx3' (english only), for AI generated voice use 'tts', slow but higher quality 'gtts'"
-      }
-  },
-  "app": {
-	"markdown": "C:\\Program Files\\MarkText\\MarkText.exe",
-	"openParam": "notepad"
-  }
+    "image": {
+        "n": 5,
+        "size": "1024x1024"
+    },
+    "text": {
+        "max_tokens": 1000,
+        "temperature": 0.4
+    },
+    "voice": {
+        "stt": {
+            "option": "google",
+            "//comment": "for faster transcription use 'sphinx', better quality 'whisper', higher quality 'google'",
+            "model": "medium",
+            "//comment": "Number of time the speech-to-text algo is trying to catch your voice after it failed",
+            "timeout": 5,
+            "nbtrial": 2
+        },
+        "tts": {
+            "option": "pyttsx3",
+            "//comment": "for faster voice generation use 'pyttsx3' (english only), for AI generated voice use 'tts', slow but higher quality 'gtts'"
+        }
+    },
+    "app": {
+        "markdown": "C:\\Program Files\\MarkText\\MarkText.exe",
+        "openParam": "notepad"
+    },
+    "//comment": "Here is a link to double check json format issues: https://elmah.io/tools/json-formatter/"
 }

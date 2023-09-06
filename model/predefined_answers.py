@@ -4,11 +4,12 @@ Created on Wed Apr 12 20:46:39 2023
 
 @author: ManuMan
 """
+import os
 import json 
+basedir_answer = os.path.dirname(__file__)
 
-with open('./model/preprompt.json') as json_file:
+with open(os.path.join(basedir_answer, 'preprompt.json')) as json_file:
     kwargs = json.load(json_file)
-
 
 predefined_answers = {'english':{'error':"Sorry, I did not understood your request.",
                                  'text_start':"Hello, I am Cortana, your smart assistant, how can I help you?",
@@ -18,11 +19,10 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                  'role':kwargs['persona'] + ' You have to speak in english.',
                                  'response':"yes",
                                  'language':'en-US',
-                                 'commands':{'idle_quit':'Shut Down',
+                                 'commands':{'exit':'Shut Down',
+                                             'idle_quit':'Activate',
                                              'activated_pause':'Cortana inactive',
                                              'activated_quit':'Cortana Shut Down',
-                                             'exit':'Cortana exit',
-                                             'save':'Cortana save',
                                              'prompt_image':"Prompt image"},
                                  'pronoun':'Me',
                                  'listening':"I am listening...",},
@@ -34,12 +34,11 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                               'role':kwargs['persona'] + ' You have to speak in french.',
                               'response':'Oui',
                               'language':'fr-FR',
-                              'commands':{'idle_quit':'Fermeture',
+                              'commands':{'exit':'Fermeture',
+                                          'idle_quit':'Activation',
                                           'activated_pause':'Cortana Veille',
                                           'activated_quit':'Cortana Fermeture',
-                                          'exit':'Cortana exit',
-                                          'save':'Cortana sauvegarde',
-                                          'prompt_image':"Prompt image"},
+                                          'prompt_image':"Générer image"},
                               'pronoun':'Moi',
                               'listening':"J'écoute...",}
                     }

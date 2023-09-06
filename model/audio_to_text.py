@@ -9,6 +9,11 @@ import speech_recognition as sr
 import whisper as ws
 import tempfile
 import os
+import webrtcvad
+import numpy as np 
+
+vad = webrtcvad.Vad()
+vad.set_mode(2)
 
 idle_english = lambda key_start, key_end:print(f"============================================== \
                                                Idle state, say \'{key_start}\' to activate me...\n   \
@@ -19,37 +24,39 @@ idle_french = lambda key_start, key_end:print(f"================================
                                               Ou dites \'{key_end}\' pour me désactiver. \
                                               ==============================================")
 
-def wait_for_call(self, key_start, key_end, language, timeout=4):
-    r = sr.Recognizer()
+def wait_for_call(flag, key_start, key_end, language, timeout=4):
+    recognizer = sr.Recognizer()
     
     # Condition to stop loop
     condition = True
     counter = 0
     
     with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source)
         if 'en' in language:
             idle_english(key_start, key_end)
         elif 'fr' in language:
             idle_french(key_start, key_end)
-        while condition and self.flag: 
-            audio = r.listen(source, timeout=timeout, phrase_time_limit=None)
-            try:
-                text = r.recognize_google(audio, language=language)
+        count = 0
+        while condition and flag: 
+            try:               
+                audio = recognizer.listen(source, timeout=timeout)
+                text = recognizer.recognize_google(audio, language=language)
                 if key_start.lower() in text.lower():
                     return True
                 if key_end.lower() in text.lower():
                     return False
             except Exception as e:
-                pass
-                # print('Command not recognized.')
+                print(f'>> #{count} idle mode. No command yet, or command not recognized.')
+            count += 1 
 
-def stt_sphinx(timeout=4):
+def stt_sphinx(language, timeout=4):
     recognizer = sr.Recognizer()
 
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source,timeout=timeout)
-        print("*>> Recording complete!*")
+        print(">> Recording complete!")
 
     # set up the response object
     response = {
@@ -59,15 +66,12 @@ def stt_sphinx(timeout=4):
     }
 
     try:
-        response["transcription"] = recognizer.recognize_sphinx(audio)
-        print("*>> Transcription complete!*")
-    except sr.RequestError:
-        # API was unreachable or unresponsive
-        response["success"] = False
-        response["error"] = "API unavailable"
+        response["transcription"] = recognizer.recognize_sphinx(audio, language=language)
+        print(">> Transcription complete!")
     except sr.UnknownValueError:
         # speech was unintelligible
         response["error"] = "Unable to recognize speech"
+        print(f'>> Error: {response["error"]}')
 
     return response
         
@@ -75,10 +79,6 @@ def stt_sphinx(timeout=4):
 def stt_google(language, timeout):
     recognizer = sr.Recognizer()
 
-    with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source, timeout=timeout)
-        print("*>> Recording complete!*")
         
     # set up the response object
     response = {
@@ -88,16 +88,34 @@ def stt_google(language, timeout):
     }
 
     try:
-        response["transcription"] = recognizer.recognize_google(audio, language=language)
-        print("*>> Transcription complete!*")
-    except sr.RequestError:
-        # API was unreachable or unresponsive
-        response["success"] = False
-        response["error"] = "API unavailable"
-    except sr.UnknownValueError:
-        # speech was unintelligible
-        response["error"] = "Unable to recognize speech"
-
+        # Record audio
+        with sr.Microphone() as source:
+            recognizer.adjust_for_ambient_noise(source)
+            audio = recognizer.listen(source, timeout=timeout)
+            print(">> Recording complete!")
+        
+        # if voice_detector(audio) < 120:
+        #     response["error"] = 'No voice detected.'
+        #     print(f'>> Error: {response["error"]}')
+        
+        # Transcribe
+        try:
+            response["transcription"] = recognizer.recognize_google(audio, language=language)
+            print(">> Transcription complete!")
+        except sr.RequestError:
+            # API was unreachable or unresponsive
+            response["error"] = "API unavailable"
+            print(f'>> Error: {response["error"]}')
+        except sr.UnknownValueError:
+            # speech was unintelligible
+            response["success"] = False
+            response["error"] = "Unable to recognize speech"
+            print(f'>> Error: {response["error"]}')
+            
+    except Exception as e:
+        response["error"] = f'An error occured: {e}'
+        print(f'>> Error: {response["error"]}')
+        
     return response
 
 def record_audio(timeout=4):
@@ -105,7 +123,7 @@ def record_audio(timeout=4):
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source, timeout=timeout)
-        print("*>> Recording complete!*")
+        print(">> Recording complete!")
     
     # save to temporary file
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
@@ -114,6 +132,12 @@ def record_audio(timeout=4):
     # print("Saved to: ", temp_file.name)
 
     return temp_file.name
+
+def voice_detector(audio):
+    audio_arr = np.frombuffer(audio.frame_data, dtype=np.int16)
+    mean = np.mean(abs(audio_arr))
+    print(mean)
+    return mean
 
 def stt_whisper(model='base', timeout=4):
     '''
@@ -133,7 +157,7 @@ def stt_whisper(model='base', timeout=4):
     try:
         result = ws.transcribe(model, audio_file, fp16=False)
         response["transcription"] = result['text']
-        print("*>> Transcription complete!*")
+        print(">> Transcription complete!")
     except Exception as e:
         response["success"] = False
         response["error"] = str('An error occured:', e)
