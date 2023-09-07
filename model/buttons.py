@@ -84,7 +84,7 @@ def launch_language(self):
     button_language(self)
     self.lang_label = ctk.CTkLabel(self, text="Select language!", text_color='white', bg_color="#19344d")
     self.lang_label.grid(row = 0, column = 0, padx=(5, 10), pady=(150, 0))
-
+    
 def launch_parameter(self):
     button_parameter(self)
     self.param_label = ctk.CTkLabel(self, text="Provide path to markdown editor!", text_color='white')
@@ -101,9 +101,9 @@ def regular_app_layout(self):
 
 def button_language(self):
     self.button_fr = ctk.CTkButton(self, text="En", bg_color="#19344d", width=70,
-                                   command=lambda:self.launch_cortana('english', api_key=self.get_api_key(), role=self.role))
+                                   command=lambda:self.launch_cortana('english', api_key=self.get_api_key(), role=self.role, **kwargs))
     self.button_en = ctk.CTkButton(self, text="Fr", bg_color="#19344d", width=70, 
-                                   command=lambda:self.launch_cortana('french', api_key=self.get_api_key(), role=self.role))
+                                   command=lambda:self.launch_cortana('french', api_key=self.get_api_key(), role=self.role, **kwargs))
     self.button_fr.grid(row = 0, column = 0, padx=(5, 10), pady=(10, 0))
     self.button_en.grid(row = 0, column = 0, padx=(5, 10), pady=(80, 0))
 
@@ -297,4 +297,4 @@ def stop_active_mode(self):
     self.bg_label = ctk.CTkLabel(self, text='', image=self.bg_image)
     self.bg_label.place(relx=0, rely=0)
     self.create_prompt()
-    regular_app_buttons(self)
+    regular_app_layout(self)

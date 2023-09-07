@@ -16,7 +16,7 @@ with open(os.path.join(basedir_model, 'parameters.json')) as json_file:
     
     
 class Cortana():
-    def __init__(self, model_name=None,  language='english', role='Generic', api_key=None,):
+    def __init__(self, model_name=None,  language='english', role='Generic', api_key=None, **kwargs):
         print('------- \n')
         print(f'# Cortana + {model_name} ({language}) \n')
         print('------- \n')
@@ -43,6 +43,13 @@ class Cortana():
         self.reset_messages()
         self.log = None
         self.flag = True
+        
+        
+    def greetings(self):
+        try:
+            self.voice_cortana(self.answers['text_start'], **kwargs['voice'])
+        except:
+            pass
 
     def set_language(self, language):
                 
@@ -166,7 +173,7 @@ class Cortana():
         text = None
         counter=0
         while (not condition and counter<nbtrial) and flag:
-            print(f"#{counter} {self.answers['listening']}")
+            # print(f"#{counter} {self.answers['listening']}")
             if stt_option == 'sphinx': # Only working in english
                 response = stt_sphinx(self.code_language, timeout)
             elif stt_option == 'google':
@@ -207,7 +214,7 @@ class Cortana():
                 kwargs['stt_option'] = 'gtts'
         
         # Welcoming message
-        self.voice_cortana(self.answers['text_start'], **kwargs['voice'])
+        self.voice_cortana(self.answers['active_mode'], **kwargs['voice'])
         condition = True
         while condition:
             # Get the text from your audio speech

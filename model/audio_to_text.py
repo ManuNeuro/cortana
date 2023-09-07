@@ -11,18 +11,19 @@ import tempfile
 import os
 import webrtcvad
 import numpy as np 
+import audioop
 
 vad = webrtcvad.Vad()
 vad.set_mode(2)
 
-idle_english = lambda key_start, key_end:print(f"============================================== \
-                                               Idle state, say \'{key_start}\' to activate me...\n   \
-                                               Or, say \'{key_end}\' to deactivate me. \
-                                               ==============================================")
-idle_french = lambda key_start, key_end:print(f"============================================== \
-                                              État de veille, dites \'{key_start}\' pour me réveiller...\n \
-                                              Ou dites \'{key_end}\' pour me désactiver. \
-                                              ==============================================")
+idle_english = lambda key_start, key_end:print("============================================== \n"  \
+                                               f"Idle state, say \'{key_start}\' to activate me...\n"  \
+                                               f"Or, say \'{key_end}\' to deactivate me. \n" \
+                                               "==============================================")
+idle_french = lambda key_start, key_end:print("============================================== \n" \
+                                              f"État de veille, dites \'{key_start}\' pour me réveiller...\n" \
+                                              f"Ou dites \'{key_end}\' pour me désactiver.\n" \
+                                              "==============================================")
 
 def wait_for_call(flag, key_start, key_end, language, timeout=4):
     recognizer = sr.Recognizer()
@@ -91,26 +92,30 @@ def stt_google(language, timeout):
         # Record audio
         with sr.Microphone() as source:
             recognizer.adjust_for_ambient_noise(source)
+            print('>> Speak now!')
             audio = recognizer.listen(source, timeout=timeout)
             print(">> Recording complete!")
+            buffer = source.stream.read(source.CHUNK)
+            energy = audioop.rms(buffer, source.SAMPLE_WIDTH)  # energy of the audio signal
         
-        # if voice_detector(audio) < 120:
-        #     response["error"] = 'No voice detected.'
-        #     print(f'>> Error: {response["error"]}')
-        
-        # Transcribe
-        try:
-            response["transcription"] = recognizer.recognize_google(audio, language=language)
-            print(">> Transcription complete!")
-        except sr.RequestError:
-            # API was unreachable or unresponsive
-            response["error"] = "API unavailable"
-            print(f'>> Error: {response["error"]}')
-        except sr.UnknownValueError:
-            # speech was unintelligible
+        print(voice_detector(audio), recognizer.energy_threshold*0.6)
+        if voice_detector(audio) < recognizer.energy_threshold*0.6: # If no voice is detected
+            response["error"] = 'No voice detected.'
             response["success"] = False
-            response["error"] = "Unable to recognize speech"
             print(f'>> Error: {response["error"]}')
+        else:
+            # Transcribe
+            try:
+                response["transcription"] = recognizer.recognize_google(audio, language=language)
+                print(">> Transcription complete!")
+            except sr.RequestError:
+                response["success"] = False
+                response["error"] = "API unavailable"
+                print(f'>> Error: {response["error"]}')
+            except sr.UnknownValueError:
+                # speech was unintelligible
+                response["error"] = "Unable to recognize speech"
+                print(f'>> Error: {response["error"]}')
             
     except Exception as e:
         response["error"] = f'An error occured: {e}'
@@ -136,7 +141,6 @@ def record_audio(timeout=4):
 def voice_detector(audio):
     audio_arr = np.frombuffer(audio.frame_data, dtype=np.int16)
     mean = np.mean(abs(audio_arr))
-    print(mean)
     return mean
 
 def stt_whisper(model='base', timeout=4):
@@ -155,6 +159,7 @@ def stt_whisper(model='base', timeout=4):
     }
 
     try:
+        print('>> Speak now!')
         result = ws.transcribe(model, audio_file, fp16=False)
         response["transcription"] = result['text']
         print(">> Transcription complete!")

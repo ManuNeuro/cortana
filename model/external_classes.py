@@ -19,9 +19,8 @@ basedir_model = os.path.dirname(__file__)
 
 class ImageLabel(ctk.CTkLabel):
     
-    def load(self, im, size):
-        if isinstance(im, str):
-            im = Image.open(im)
+    def load(self, filepath, size):
+        im = Image.open(filepath)
         self.loc = 0
         self.frames = []
 

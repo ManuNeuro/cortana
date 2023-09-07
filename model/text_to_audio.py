@@ -34,20 +34,20 @@ def text_to_speech_TTS(text, language='en', model=None, vocoder_path=None, **kwa
     
     file_path = tempfile.NamedTemporaryFile(delete=False, suffix=".wav").name
     if model is None:
-            if 'fr' in language:
-                # model = 'tts_models/fr/css10/vits'
-                model = 'tts_models/multilingual/multi-dataset/your_tts'
-                vocoder_path='vocoder_models/universal/libri-tts/wavegrad'
-                tts = TTS(model_name=model, progress_bar=True, gpu=False,
-                          vocoder_path=vocoder_path)
-                file_path = tts.tts_to_file(text=text, file_path=file_path, 
-                                            speaker='female-en-5\n', language='fr-fr')
-                
-            elif 'en' in language:
-                model = 'tts_models/en/ljspeech/tacotron2-DCA'
-                # vocoder_path='vocoder_models/en/ljspeech/hifigan_v2'
-                tts = TTS(model_name=model, progress_bar=True, gpu=False)
-                file_path = tts.tts_to_file(text=text, file_path=file_path)
+        if 'fr' in language:
+            # model = 'tts_models/fr/css10/vits'
+            model = 'tts_models/multilingual/multi-dataset/your_tts'
+            vocoder_path='vocoder_models/universal/libri-tts/wavegrad'
+            tts = TTS(model_name=model, progress_bar=True, gpu=False,
+                      vocoder_path=vocoder_path)
+            file_path = tts.tts_to_file(text=text, file_path=file_path, 
+                                        speaker='female-en-5\n', language='fr-fr')
+            
+        elif 'en' in language:
+            model = 'tts_models/en/ljspeech/tacotron2-DCA'
+            # vocoder_path='vocoder_models/en/ljspeech/hifigan_v2'
+            tts = TTS(model_name=model, progress_bar=True, gpu=False)
+            file_path = tts.tts_to_file(text=text, file_path=file_path)
     else:
         if kwargs is None:
             kwargs = {'model':{}, 'tts':{}}

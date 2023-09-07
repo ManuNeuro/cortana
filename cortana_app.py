@@ -53,7 +53,7 @@ class CortanaApp(ctk.CTk):
         # Get screen size
         self.screen_width = self.winfo_screenwidth()
         self.screen_height = self.winfo_screenheight()
-        w = self.screen_width/3  #Width of the Window
+        w = self.screen_width/2  #Width of the Window
         h = self.screen_height - 30 #Height of the Window
         # Position of window
         x, y = 0, 0
@@ -100,12 +100,13 @@ class CortanaApp(ctk.CTk):
         launch_language(self)
         launch_parameter(self)  
     
-    def launch_cortana(self, language, api_key, role):
-        api_key = None
-        self.my_cortana = Cortana(self.model_name, language, api_key=api_key, role=role)
-        self.gif.unload()
+    def launch_cortana(self, language, api_key, role, **kwargs):
+        self.my_cortana = Cortana(self.model_name, language, api_key=api_key, role=role, **kwargs)
+        if self.gif is not None:
+            self.gif.unload()
+            self.gif = None
         regular_app_layout(self)  
-  
+        
     def create_prompt(self, row=9, column=0, sticky="ew", columnspan=11, 
                            padx=(10, 10), rowspan=1, pady=(0, 0)):
         # Interactive text box to chat with cortana
@@ -138,7 +139,7 @@ class CortanaApp(ctk.CTk):
             
             # Set background image
             filepath = os.path.join(self.folder_images, "cover.jpg")
-            self.bg_image=CTkImage(Image.open(filepath), size=self.monitor_size(0.37, 0.35))
+            self.bg_image = CTkImage(Image.open(filepath), size=self.monitor_size(0.37, 0.35))
             self.bg_label = ctk.CTkLabel(self, text='', image=self.bg_image)
             self.bg_label.place(relx=0, rely=0)
             
