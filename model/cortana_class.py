@@ -112,7 +112,7 @@ class Cortana():
             print('-------- ')
             print(f'{os.getlogin()}: {self.last_input} ')
             print('----------- ')
-            print(f'Cortana: {self.last_answer} ')
+            print(f'Cortana: \n{self.last_answer} ')
             print('----------- ')
             print('$~~~~~~~~~~~$')
             

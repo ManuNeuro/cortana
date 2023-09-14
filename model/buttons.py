@@ -100,9 +100,11 @@ def regular_app_layout(self):
 
 
 def button_language(self):
-    self.button_fr = ctk.CTkButton(self, text="En", bg_color="#19344d", width=70,
+    self.button_fr = ctk.CTkButton(self, text="En",background_corner_colors=['#13273a', '#13273a', '#485a69', '#13273a'],
+                                   width=70,
                                    command=lambda:self.launch_cortana('english', api_key=self.get_api_key(), role=self.role, **kwargs))
-    self.button_en = ctk.CTkButton(self, text="Fr", bg_color="#19344d", width=70, 
+    self.button_en = ctk.CTkButton(self, text="Fr", background_corner_colors=['#13273a', '#485a69', '#485a69', '#3e4d5a'],
+                                   width=70, 
                                    command=lambda:self.launch_cortana('french', api_key=self.get_api_key(), role=self.role, **kwargs))
     self.button_fr.grid(row = 0, column = 0, padx=(5, 10), pady=(10, 0))
     self.button_en.grid(row = 0, column = 0, padx=(5, 10), pady=(80, 0))
@@ -189,7 +191,7 @@ def regular_app_buttons(self):
     ToolTip(self.button_talk, msg="Launch the active conversation mode, have fun!", delay=1.0)
     
     self.button_file = ctk.CTkButton(self, image=self.img_open.image, border_width=0 , 
-                                     bg_color="#13273a",
+                                     background_corner_colors=['#388ab0', '#13273a', '#13273a', '#13273a'],
                                      width=50, height=20, #borderwidth=0, pady=0, padx=0, background="white",
                                      command=lambda:sp.Popen([markdown, os.path.join(self.folder_res, f'{self.filename}.md')]))
     ToolTip(self.button_file, msg="Open the current markdown file in conversation", delay=1.0)
@@ -206,7 +208,8 @@ def regular_app_buttons(self):
                                     command=lambda:self.new_filename())
     ToolTip(self.button_new, msg="Open conversation in a new file", delay=1.0)
     
-    self.button_load = ctk.CTkButton(self, image=self.img_load.image, bg_color="#13273a",
+    self.button_load = ctk.CTkButton(self, image=self.img_load.image, 
+                                     background_corner_colors=['#13273a', '#13273a', '#13273a', '#13273a'],
                                      width=50, height=20,#borderwidth=0, pady=0, padx=0, background="#13273a",
                                      command=lambda:load_from_file(self))
     ToolTip(self.button_load, msg="Load an existing markdown file", delay=1.0)
