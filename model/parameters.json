@@ -13,7 +13,7 @@
             "//comment": "for faster transcription use 'sphinx', better quality 'whisper', higher quality 'google'",
             "model": "medium",
             "//comment": "Number of time the speech-to-text algo is trying to catch your voice after it failed",
-            "timeout": 5,
+            "timeout": 3,
             "nbtrial": 2
         },
         "tts": {

@@ -42,7 +42,7 @@ def wait_for_call(flag, key_start, key_end, language, timeout=4):
         elif 'fr' in language:
             idle_french(key_start, key_end)
         counter = 0
-        while condition and flag: 
+        while condition: 
             recognizer.adjust_for_ambient_noise(source)
             print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n')
             spinner = Spinner(message='>> Recording, please speak!      ')
@@ -66,6 +66,10 @@ def wait_for_call(flag, key_start, key_end, language, timeout=4):
                         return False
                 except Exception as e:
                     print(f'>> #{counter} idle mode. Error of transcription.')
+            
+            if not flag:
+                condition = False
+            
             counter += 1
             
             
@@ -110,7 +114,7 @@ def stt_google(language, timeout):
         with sr.Microphone() as source:
             recognizer.adjust_for_ambient_noise(source)
             print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
-            spinner = Spinner(message='>> Recording, please speak!')
+            spinner = Spinner(message='>> Recording, please speak!       ')
             spinner.start()
             audio = recognizer.listen(source, timeout=timeout)
             spinner.stop()
@@ -121,7 +125,7 @@ def stt_google(language, timeout):
             energy = audioop.rms(buffer, source.SAMPLE_WIDTH)  # energy of the audio signal
         
         threshold = recognizer.energy_threshold*0.65
-        print(voice_detector(audio), threshold)
+        # print(voice_detector(audio), threshold)
         if voice_detector(audio) < threshold*1.05: # If no voice is detected
             response["error"] = "No voice detected."
             response["success"] = False

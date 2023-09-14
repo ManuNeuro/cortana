@@ -47,7 +47,7 @@ class Cortana():
         
     def greetings(self):
         try:
-            self.voice_cortana(self.answers['text_start'], **kwargs['voice'])
+            self.voice_cortana(self.answers['text_start'], **kwargs['voice'])   
         except:
             pass
 
@@ -167,30 +167,38 @@ class Cortana():
         print(">> Processing speech-to-text")
         self.voice_cortana(self.last_answer, **kwargs['voice'])
     
-    def cortana_listen(self, stt_option='google', nbtrial=2, timeout=4, flag=True, **kwargs):
+    def cortana_listen(self, stt_option='google', nbtrial=2, timeout=4, **kwargs):
         
-        condition=False
+        condition=True
         text = None
         counter=0
-        while (not condition and counter<nbtrial) and flag:
+        while (condition):
             # print(f"#{counter} {self.answers['listening']}")
-            if stt_option == 'sphinx': # Only working in english
-                response = stt_sphinx(self.code_language, timeout)
-            elif stt_option == 'google':
-                response = stt_google(self.code_language, timeout)
-            elif stt_option == 'whisper':
-                model = kwargs.get('model', 'base')
-                response = stt_whisper(model, timeout)
+            
+            if self.flag:
+                if stt_option == 'sphinx': # Only working in english
+                    response = stt_sphinx(self.code_language, timeout)
+                elif stt_option == 'google':
+                    response = stt_google(self.code_language, timeout)
+                elif stt_option == 'whisper':
+                    model = kwargs.get('model', 'base')
+                    response = stt_whisper(model, timeout)
+                else:
+                    raise Exception(f'Model {stt_option} of speech-to-text recognition not implemented.')
+                success = response['success']
+                text = response['transcription']
+                error = response['error']
+                if success and text is not None:
+                    condition = True
+                if response['error'] is None:
+                    condition = False
+            
+                counter+=1 # Increment counter
+                if counter>nbtrial:
+                    condition = False
             else:
-                raise Exception(f'Model {stt_option} of speech-to-text recognition not implemented.')
-            success = response['success']
-            text = response['transcription']
-            error = response['error']
-            if success and text is not None:
-                condition = True
-            if response['error'] is None:
                 condition = False
-            counter+=1 # Increment counter
+                
         return text, success, error
     
     def talk_with_cortana(self, **kwargs):
@@ -218,7 +226,7 @@ class Cortana():
         while condition:
             # Get the text from your audio speech
             text, success, error = self.cortana_listen(stt_option=stt_option, nbtrial=stt_nbtrial, 
-                                                       timeout=stt_timeout, flag=self.flag, model=stt_model)
+                                                       timeout=stt_timeout, model=stt_model)
             
             # Check if a specific command has been used
             if text is not None:

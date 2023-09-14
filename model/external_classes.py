@@ -144,10 +144,10 @@ class ToplevelWindow(ctk.CTkToplevel):
         self.screen_width = self.winfo_screenwidth()
         self.screen_height = self.winfo_screenheight()
         self.iconbitmap(os.path.join(basedir_model.split('model')[0], "icon-active.ico"))
-        w = self.screen_width/3#Width of the Window
+        w = self.screen_width/2#Width of the Window
         h = self.screen_height  #Height of the Window
         # calculate position x, y
-        x = w*1.5
+        x = w
         y = 0
         #This is responsible for setting the dimensions of the screen and where it is
         #placed
@@ -172,7 +172,7 @@ class ToplevelWindow(ctk.CTkToplevel):
                                   bg_color="#13273a", height=18)
         self.icon.grid(row=10, column=0, pady=(0, 10), padx=(10, 120))
         
-        threading.Thread(target=self.write_smth).start()
+        # threading.Thread(target=self.write_smth).start()
 
     def create_icon(self, filename):
         # Resizing image to fit on button
