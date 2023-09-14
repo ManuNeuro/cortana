@@ -99,16 +99,16 @@ class RedirectedPrint:
         self.output_text = output_text
         self.counter = 0
         self.recording = False
-        self.spinner = ['-', '\\', '|', '/']
+        self.spinner = np.array(['-', '\\', '|', '/'])
 
     def addLine(self, text):
         self.output_text.insert("end",u"\n{}".format(text))#.split('\n')[0]))
 
     def replaceLastLine(self, text):
         # time.sleep(0.1)
-        self.output_text.delete("end-1l","end")
-        self.output_text.insert("end-1l",u"\n{}".format(text))#.split('\n')[0]))
-
+        self.output_text.delete("end-2c")
+        self.output_text.insert("end-2c", u"{}".format(text))#.split('\n')[0]))
+    
     def write(self, text):
             self.counter += 1
             self.output_text.configure(state="normal")  # configure textbox to be read-only
@@ -119,7 +119,7 @@ class RedirectedPrint:
                 if text == "" and np.any(cond_previous_text):
                     pass
                 elif np.any(cond_current_text) and (text != "\n"):
-                    self.replaceLastLine(text)
+                    self.replaceLastLine(self.spinner[cond_current_text][0])
                 elif not np.any(cond_current_text) and (text != "\n"):
                     self.recording = False
             else:
@@ -189,7 +189,7 @@ class ToplevelWindow(ctk.CTkToplevel):
         count = 0
         while count <5:
             print('------')
-            spinner = Spinner(message = '>> Recording, please speak!')
+            spinner = Spinner(message = '>> Recording, please speak!   ')
             spinner.start()
             t = np.random.randint(1, 5)    
             time.sleep(t)
@@ -217,10 +217,10 @@ class Spinner:
             print(message)
             while self.running:
                 spin = next(self.spinner_cycle)
-                print(f'>> Recording now...        \r{spin}         {spin}         {spin}', end="", flush=True)
+                print(f'>> Recording now...        \r{spin}', end="", flush=True)
                 time.sleep(0.2)
         except:
             pass
         
-app = ToplevelWindow()
-app.mainloop()
+# app = ToplevelWindow()
+# app.mainloop()

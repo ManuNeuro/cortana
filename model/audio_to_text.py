@@ -45,7 +45,7 @@ def wait_for_call(flag, key_start, key_end, language, timeout=4):
         while condition and flag: 
             recognizer.adjust_for_ambient_noise(source)
             print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n')
-            spinner = Spinner(message='>> Recording, please speak!')
+            spinner = Spinner(message='>> Recording, please speak!      ')
             spinner.start()
             try:
                 audio = recognizer.listen(source, timeout=4)
