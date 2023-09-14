@@ -17,9 +17,9 @@ with open(os.path.join(basedir_model, 'parameters.json')) as json_file:
     
 class Cortana():
     def __init__(self, model_name=None,  language='english', role='Generic', api_key=None, **kwargs):
-        print('------- \n')
-        print(f'# Cortana + {model_name} ({language}) \n')
-        print('------- \n')
+        print('-------------------------------------- ')
+        print(f'# Cortana + {model_name} ({language}) ')
+        print('-------------------------------------- ')
         print('$~~~~~~~~~~~$')
         if api_key is None or api_key=='':
             from api_key import secret_key
@@ -76,9 +76,9 @@ class Cortana():
 
     def set_model(self, model_name=None):
         if model_name is None:
-            print('All models available: \n')
+            print('All models available: ')
             self.list_model()
-            print('----- \n')
+            print('----- ')
             print('Choose the model:')
             model_name = input()
         self.model_name = model_name
@@ -109,11 +109,11 @@ class Cortana():
         # Print
         if _print:
             # pronoun = self.answers['pronoun']
-            print('-------- \n')
-            print(f'{os.getlogin()}: {self.last_input} \n')
-            print('----------- \n')
-            print(f'Cortana: \n{self.last_answer} \n')
-            print('----------- \n')
+            print('-------- ')
+            print(f'{os.getlogin()}: {self.last_input} ')
+            print('----------- ')
+            print(f'Cortana: {self.last_answer} ')
+            print('----------- ')
             print('$~~~~~~~~~~~$')
             
     def prompt_image(self, input_, n=5, size="1024x1024", **kwargs):
@@ -129,12 +129,12 @@ class Cortana():
         urls = [response['data'][i]['url'] for i in range(n)]
         [webbrowser.open(url, new=0, autoraise=True) for url in urls]  # Go to example.com
         print('----------------------')
-        print(f'Prompt for the image: {self.last_input} \n')
+        print(f'Prompt for the image: {self.last_input} ')
         print('----------------------')
-        print('I generated image(s) at the following url(s):\n')
+        print('I generated image(s) at the following url(s):')
         for url in urls:
-            print(str(url)+'\n')
-        print('----------- \n')
+            print(str(url)+'')
+        print('----------- ')
         print('$~~~~~~~~~~~$')
         # self.messages.append({'role':'assistant', "content":urls})
         # self.image_url = url
@@ -185,19 +185,18 @@ class Cortana():
                 raise Exception(f'Model {stt_option} of speech-to-text recognition not implemented.')
             success = response['success']
             text = response['transcription']
+            error = response['error']
             if success and text is not None:
                 condition = True
-            if success and (text is None) and response['error'] is None:
+            if response['error'] is None:
                 condition = False
-            if response['error'] is not None:
-                condition = True
             counter+=1 # Increment counter
-        return text, success
+        return text, success, error
     
     def talk_with_cortana(self, **kwargs):
-        print('------- \n')
-        print(f'# Active mode: online discussion with Cortana\n')
-        print('------- \n')
+        print('------- ')
+        print(f'# Active mode: online discussion with Cortana')
+        print('------- ')
 
         stt_option = kwargs['voice']['stt'].get('option', 'google')
         stt_timeout = kwargs['voice']['stt'].get('timeout', 3)
@@ -218,8 +217,8 @@ class Cortana():
         condition = True
         while condition:
             # Get the text from your audio speech
-            text, success = self.cortana_listen(stt_option=stt_option, nbtrial=stt_nbtrial, 
-                                                timeout=stt_timeout, flag=self.flag, model=stt_model)
+            text, success, error = self.cortana_listen(stt_option=stt_option, nbtrial=stt_nbtrial, 
+                                                       timeout=stt_timeout, flag=self.flag, model=stt_model)
             
             # Check if a specific command has been used
             if text is not None:
@@ -230,7 +229,7 @@ class Cortana():
             # Send the text to cortana
             if self.flag:
                 # Put cortana in pause
-                if (command =='activated_pause') or (text is None):
+                if (command =='activated_pause') or (error == "No voice detected."):
                     self.voice_cortana(self.answers['text_idle'], **kwargs['voice'])
                     condition = wait_for_call(self.flag, self.answers['commands']['idle_quit'], self.answers['commands']['exit'], language)
                     if condition:
@@ -285,5 +284,5 @@ class Cortana():
             role = self.answers['role']
         self.messages=[{'role': "system", "content":role}]
 
-my_cortana = Cortana('gpt-4', 'english')
-my_cortana.talk_with_cortana(**kwargs)
+# my_cortana = Cortana('gpt-4', 'english')
+# my_cortana.talk_with_cortana(**kwargs)
