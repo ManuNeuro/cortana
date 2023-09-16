@@ -18,33 +18,70 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                  'prompt_image':"Please wait, I will generate an image",
                                  'role':kwargs['persona'] + ' You have to speak in english.',
                                  'active_mode': "Active mode activated, let's chat!",
-                                 'response':"yes",
+                                 'active_title':'# Active mode: online discussion with Cortana',
+                                 'response':"Yes",
                                  'language':'en-US',
-                                 'commands':{'exit':'Shut Down',
-                                             'idle_quit':'Activate',
+                                 'tts':{'processing':'>> Processing text to speech.',
+                                        'reading':'>> Reading audio now.'},
+                                 'stt':{'recording':'>> Recording, please speak!      ',
+                                        'rec_complete':">> Recording complete!",
+                                        'trans_complete':">> Transcription complete!",
+                                        'api_error':"API unavailable",
+                                        'error_speech':"Unable to recognize speech",
+                                        'idle_err1':"idle mode. No command yet, or command not recognized.",
+                                        'idle_err2':"idle mode. No voice detected, or command not recognize.",
+                                        'idle_wake':"Command recognized: back to active mode.",
+                                        'idle_exit':"Command recognized: exiting active mode.",
+                                        'text_sending':">> Sending text to OpenAi servers."},
+                                 'commands':{'idle_exit':'Shut Down',
+                                             'idle_start':'Activate',
                                              'activated_pause':'Cortana inactive',
                                              'activated_quit':'Cortana Shut Down',
                                              'prompt_image':"Prompt image"},
                                  'pronoun':'Me',
-                                 'listening':"I am listening...",},
+                                 'listening':"I am listening...",
+                                 'protocol_terminated':'          ---- Protocol Terminated ----'},
                     'french':{'error':"Désolé, je n'ai pas compris votre question.",
                               'text_start':"Bonjour, je suis cortana, votre assistant intelligent personnel, comment puis-je vous aider?",
                               'active_mode': "Mode de discussion interactif activé!",
+                              'active_title':'# Mode actif: discussion orale avec Cortana',
                               'text_idle':"Je met mon système en veille, réveillez-moi, quand vous avez besoin.",
                               'text_close':"Je termine mon protocole, au revoir",
                               'prompt_image':"Veuillez patienter, je vais générer une image.",
                               'role':kwargs['persona'] + ' You have to speak in french.',
                               'response':'Oui',
                               'language':'fr-FR',
+                              'tts':{'processing':'>> Transcription texte vers audio.',
+                                     'reading':">> Lecture de l'audio'."},
+                              'stt':{'recording':'>> Enregistrement en cours, parlez !      ',
+                                     'rec_complete':">> Enregistrement complet !",
+                                     'trans_complete':">> Transcription complétée!",
+                                     'api_error':"API non joignable.",
+                                     'error_speech':"Audio non reconnu.",
+                                     'idle_err1':"idle mode. Pas de command, ou commande non reconnue.",
+                                     'idle_err2':"idle mode. Pas de voix détecté, ou audio non reconnu.",
+                                     'idle_wake':"Commande reconnue: retour au mode actif.",
+                                     'idle_exit':"Commande reconnue: fermeture du mode actif.",
+                                     'text_sending':">> Envoie de la requête aux serveurs OpenAI."},
                               'commands':{'exit':'Fermeture',
                                           'idle_quit':'Activation',
                                           'activated_pause':'Cortana Veille',
                                           'activated_quit':'Cortana Fermeture',
                                           'prompt_image':"Générer image"},
                               'pronoun':'Moi',
-                              'listening':"J'écoute...",}
+                              'listening':"J'écoute...",
+                              'protocol_terminated':'          ---- Protocole terminé ----',
+                              }
                     }
 
+idle_english = lambda key_start, key_end:print("============================================== \n"  \
+                                               f"Idle state, say \'{key_start}\' to activate me...\n"  \
+                                               f"Or, say \'{key_end}\' to deactivate me. \n" \
+                                               "==============================================")
+idle_french = lambda key_start, key_end:print("============================================== \n" \
+                                              f"État de veille, dites \'{key_start}\' pour me réveiller...\n" \
+                                              f"Ou dites \'{key_end}\' pour me désactiver.\n" \
+                                              "==============================================\n")
 
 def command_condition(text, command):
     if command.lower() in text.lower():

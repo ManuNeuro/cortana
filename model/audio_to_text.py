@@ -15,26 +15,18 @@ import audioop
 import tqdm
 
 from cortana.model.external_classes import Spinner
+from cortana.model.predefined_answers import idle_english, idle_french
 
-vad = webrtcvad.Vad()
-vad.set_mode(2)
+# vad = webrtcvad.Vad()
+# vad.set_mode(2)
 
-idle_english = lambda key_start, key_end:print("============================================== \n"  \
-                                               f"Idle state, say \'{key_start}\' to activate me...\n"  \
-                                               f"Or, say \'{key_end}\' to deactivate me. \n" \
-                                               "==============================================")
-idle_french = lambda key_start, key_end:print("============================================== \n" \
-                                              f"État de veille, dites \'{key_start}\' pour me réveiller...\n" \
-                                              f"Ou dites \'{key_end}\' pour me désactiver.\n" \
-                                              "==============================================\n")
-
-def wait_for_call(flag, key_start, key_end, language, timeout=4):
+def wait_for_call(self, key_start, key_end, language, timeout=4):
+    
     recognizer = sr.Recognizer()
     
     # Condition to stop loop
     condition = True
     counter = 0
-    
     
     with sr.Microphone() as source:
         if 'en' in language:
@@ -45,41 +37,41 @@ def wait_for_call(flag, key_start, key_end, language, timeout=4):
         while condition: 
             recognizer.adjust_for_ambient_noise(source)
             print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n')
-            spinner = Spinner(message='>> Recording, please speak!      ')
-            spinner.start()
+            self.spinner = Spinner(message=self.answers['stt']['recording'])
+            self.spinner.start()
             try:
-                audio = recognizer.listen(source, timeout=4)
+                audio = recognizer.listen(source, timeout=5)
                 success = True
             except:
                 success = False
-                print(f'>> #{counter} idle mode. No command yet, or command not recognized.')
-            spinner.stop()
+                print('>> #{0} {1}'.format(counter, self.answers['stt']['idle_err1']))
+            self.spinner.stop()
             print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n')                
             if success:
                 try:
                     text = recognizer.recognize_google(audio, language=language)
                     if key_start.lower() in text.lower():
-                        print(f'>> #{counter} exiting idle mode.')
+                        print('>> #{0} {1}'.format(counter, self.answers['stt']['idle_start']))
                         return True
                     if key_end.lower() in text.lower():
-                        print(f'>> #{counter} idle mode. Command not recognized.')
+                        print('>> #{0} {1}'.format(counter, self.answers['stt']['idle_exit']))
                         return False
                 except Exception as e:
-                    print(f'>> #{counter} idle mode. Error of transcription.')
+                    print('>> #{0} {1}'.format(counter, self.answers['stt']['idle_err2']))
             
-            if not flag:
+            if not self.flag:
                 condition = False
             
             counter += 1
             
             
-def stt_sphinx(language, timeout=4):
+def stt_sphinx(self, language, timeout=4):
     recognizer = sr.Recognizer()
 
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source)
         audio = recognizer.listen(source,timeout=timeout)
-        print(">> Recording complete!")
+    print(self.answers['stt']['rec_complete'])
 
     # set up the response object
     response = {
@@ -90,18 +82,25 @@ def stt_sphinx(language, timeout=4):
 
     try:
         response["transcription"] = recognizer.recognize_sphinx(audio, language=language)
-        print(">> Transcription complete!")
+        print(self.answers['stt']['trans_complete'])
     except sr.UnknownValueError:
         # speech was unintelligible
         response["error"] = "Unable to recognize speech"
         print(f'>> Error: {response["error"]}')
 
     return response
-        
 
-def stt_google(language, timeout):
+
+def stt_model_selector(recognizer, audio, option, **kwargs):
+    
+    if option == 'google':
+        return recognizer.recognize_google(audio, **kwargs)
+    elif option == 'sphinx':
+        return recognizer.recognize_sphinx(audio, **kwargs)
+
+def speech_to_text(self, option, language, timeout):
+
     recognizer = sr.Recognizer()
-
         
     # set up the response object
     response = {
@@ -114,13 +113,13 @@ def stt_google(language, timeout):
         with sr.Microphone() as source:
             recognizer.adjust_for_ambient_noise(source)
             print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n')
-            spinner = Spinner(message='>> Recording, please speak!       ')
+            spinner = Spinner(message=self.answers['stt']['recording'])
             spinner.start()
             audio = recognizer.listen(source, timeout=timeout)
             spinner.stop()
             print('')
             print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            print(">> Recording complete!")
+            print(self.answers['stt']['rec_complete'])
             buffer = source.stream.read(source.CHUNK)
             energy = audioop.rms(buffer, source.SAMPLE_WIDTH)  # energy of the audio signal
         
@@ -133,15 +132,16 @@ def stt_google(language, timeout):
         else:
             # Transcribe
             try:
-                response["transcription"] = recognizer.recognize_google(audio, language=language)
+                response["transcription"] = stt_model_selector(recognizer, audio, option, language=language)
                 print(">> Transcription complete! ")
+                print(self.answers['stt']['trans_complete'])
             except sr.RequestError:
                 response["success"] = False
-                response["error"] = "API unavailable"
+                response["error"] = self.answers['stt']['api_error']
                 print(f'>> Error: {response["error"]} ')
             except sr.UnknownValueError:
                 # speech was unintelligible
-                response["error"] = "Unable to recognize speech"
+                response["error"] = self.answers['stt']['error_speech']
                 print(f'>> Error: {response["error"]} ')
             
     except Exception as e:

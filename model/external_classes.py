@@ -147,7 +147,7 @@ class ToplevelWindow(ctk.CTkToplevel):
         w = self.screen_width/2#Width of the Window
         h = self.screen_height  #Height of the Window
         # calculate position x, y
-        x = w
+        x = w*1.5
         y = 0
         #This is responsible for setting the dimensions of the screen and where it is
         #placed
@@ -220,7 +220,7 @@ class Spinner:
                 print(f'>> Recording now...        \r{spin}', end="", flush=True)
                 time.sleep(0.2)
         except:
-            pass
+            self.stop()
         
 # app = ToplevelWindow()
 # app.mainloop()

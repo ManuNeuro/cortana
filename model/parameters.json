@@ -10,14 +10,14 @@
     "voice": {
         "stt": {
             "option": "google",
-            "//comment": "for faster transcription use 'sphinx', better quality 'whisper', higher quality 'google'",
+            "//comment": "for faster transcription use 'sphinx', higher quality 'google', AI generated (noisy) 'whisper'",
             "model": "medium",
             "//comment": "Number of time the speech-to-text algo is trying to catch your voice after it failed",
             "timeout": 3,
             "nbtrial": 2
         },
         "tts": {
-            "option": "pyttsx3",
+            "option": "gtts",
             "//comment": "for faster voice generation use 'pyttsx3' (english only), for AI generated voice use 'tts', slow but higher quality 'gtts'"
         }
     },
