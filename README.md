@@ -52,10 +52,15 @@ Once I updated the STT and TTS, I will be recording one of **the first podcasts 
 - [x] Transfering the app towards CustomTk.
 - [x] Adding an external window for active mode.
 - [x] Cleaning and factoring the codes
-
+- [x] Speeding up active mode
 
 **In the future:**
 
 - [ ] Test and debug functionalities
 - [ ] Adding markdown display in active mode
 - [ ] Adding a voice and recording button in passive mode
+
+# Known bugs
+- In active mode, the commands "Deactivate" and "ShutDown" do not work.
+- In active idle mode, the command activate does not work.
+- While using double screens, moving the app from one to another messes up with the layout.
