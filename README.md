@@ -1,4 +1,4 @@
-![image](https://github.com/ManuNeuro/cortana/assets/11985689/106f4faa-672d-4ff0-b709-28d2a4c48004)# Cortana
+# Cortana
 
  It is a project to interact with ChatGPT4 with audio, and it allows programmers to have the response in their favourite markdown editor.
 
