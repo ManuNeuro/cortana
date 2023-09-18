@@ -59,6 +59,9 @@ Once I updated the STT and TTS, I will be recording one of **the first podcasts 
 - [ ] Test and debug functionalities
 - [ ] Adding markdown display in active mode
 - [ ] Adding a voice and recording button in passive mode
+- [ ] Adding langchain: internet access
+- [ ] Adding langchain: python REPL to run code
+- [ ] Adding Local open-source LLM models
 
 # Known bugs
 - In active mode, the commands "Deactivate" and "ShutDown" do not work.
