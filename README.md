@@ -67,3 +67,4 @@ Once I updated the STT and TTS, I will be recording one of **the first podcasts 
 - In active mode, the commands "Deactivate" and "ShutDown" do not work.
 - In active idle mode, the command activate does not work.
 - While using double screens, moving the app from one to another messes up with the layout.
+- API Key button is not working anymore
