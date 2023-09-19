@@ -133,7 +133,6 @@ def speech_to_text(self, option, language, timeout):
             # Transcribe
             try:
                 response["transcription"] = stt_model_selector(recognizer, audio, option, language=language)
-                print(">> Transcription complete! ")
                 print(self.answers['stt']['trans_complete'])
             except sr.RequestError:
                 response["success"] = False

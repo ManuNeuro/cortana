@@ -33,10 +33,10 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                         'idle_wake':"Command recognized: back to active mode.",
                                         'idle_exit':"Command recognized: exiting active mode.",
                                         'text_sending':">> Sending text to OpenAi servers."},
-                                 'commands':{'idle_exit':'Shut Down',
+                                 'commands':{'activated_pause':'Cortana inactive',
+                                             'activated_exit':'Cortana Shut Down',
+                                             'idle_exit':'Shut Down',
                                              'idle_start':'Activate',
-                                             'activated_pause':'Cortana inactive',
-                                             'activated_quit':'Cortana Shut Down',
                                              'prompt_image':"Prompt image"},
                                  'pronoun':'Me',
                                  'listening':"I am listening...",
@@ -63,10 +63,10 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                      'idle_wake':"Commande reconnue: retour au mode actif.",
                                      'idle_exit':"Commande reconnue: fermeture du mode actif.",
                                      'text_sending':">> Envoie de la requête aux serveurs OpenAI."},
-                              'commands':{'exit':'Fermeture',
-                                          'idle_quit':'Activation',
-                                          'activated_pause':'Cortana Veille',
-                                          'activated_quit':'Cortana Fermeture',
+                              'commands':{'activated_pause':'Cortana Veille',
+                                          'activated_exit':'Cortana Fermeture',
+                                          'idle_exit':'Fermeture',
+                                          'idle_start':'Activation',
                                           'prompt_image':"Générer image"},
                               'pronoun':'Moi',
                               'listening':"J'écoute...",
@@ -92,17 +92,8 @@ def command_condition(text, command):
 def text_command_detector(text, language):
     commands = predefined_answers[language]['commands']
     for command, text_command in commands.items():
-        if 'activated' in command:
-            if command_condition(text, text_command):
-                return command
-        elif 'image' in command:
-            if command_condition(text, text_command):
-                return command
-        elif 'exit' in command:
-            if command_condition(text, text_command):
-                return command
-        elif 'save' in command:
-            if command_condition(text, text_command):
-                return command
+        if command_condition(text, text_command):
+            return command
+        
     return None
 
