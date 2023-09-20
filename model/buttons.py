@@ -285,6 +285,11 @@ def active_mode(self):
 
 def stop_active_mode(self):
     self.my_cortana.flag = False
+    # If spinner is still running, stop it
+    if hasattr(self.my_cortana, 'spinner'):
+        if self.my_cortana.spinner.running:           
+            self.my_cortana.spinner.stop()  
+    
     # Destroy the second window
     if self.toplevel_window is not None:
         self.toplevel_window.destroy()

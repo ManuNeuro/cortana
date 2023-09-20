@@ -203,6 +203,7 @@ class Spinner:
         self.spinner_cycle = itertools.cycle(['-', '\\', '|', '/'])
         self.running = False
         self.spinner_thread = threading.Thread(target=self.init_spinner, args=(message,))
+        # self.spinner_thread.setDaemon(True)  # Set the thread as a daemon
 
     def start(self):
         self.running = True
@@ -221,6 +222,9 @@ class Spinner:
                 time.sleep(0.2)
         except:
             self.stop()
+    
+    def __del__(self):
+        self.stop()
         
 # app = ToplevelWindow()
 # app.mainloop()

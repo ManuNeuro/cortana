@@ -256,6 +256,11 @@ class Cortana():
         print(self.answers['protocol_terminated'])
         self.flag = False
         
+        # If spinner is still running, stop it
+        if hasattr(self, 'spinner'):
+            if self.spinner.running:           
+                self.spinner.stop()  
+        
         
     def submit_prompt(self, input_text, _voice=False, preprompt_path='./model/preprompt.json', **kwargs):# ./model/preprompt.json
         
@@ -300,10 +305,5 @@ class Cortana():
             role = self.answers['role']
         self.messages=[{'role': "system", "content":role}]
         
-    def __del__(self):
-        if hasattr(self, 'spinner'): # If spinner is still running, stop it
-            if self.spinner.running:           
-                self.spinner.stop()  
-
 # my_cortana = Cortana('gpt-4', 'english')
 # my_cortana.talk_with_cortana(**kwargs)
