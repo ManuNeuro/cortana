@@ -45,7 +45,7 @@ def create_dropdown_model(self, landing_page=False):
         ToolTip(self.drop_model, msg="Select the LLM model you want to use. 16k and 32k indicate the number of token in memory.", delay=1.0)
 
         self.drop_model.set(options[0])
-        self.change_model(options[0], True)
+        self.change_model(options[0], False)
         self.label_model.grid(row = 8, column = 0, padx=(0, 100), pady=(70, 5))
         self.drop_model.grid(row = 8, column = 0, padx=(0, 0), pady=(130, 10))
     else:
@@ -68,7 +68,7 @@ def create_dropdown_role(self, landing_page=False):
                                     "You can add any role you want in the json, it will automatically add the role name in the list", delay=1.0)
 
         self.drop_role.set(options[0])
-        self.change_role(options[0])
+        self.change_role(options[0], False)
         self.label_role.grid(row = 8, column = 1, padx=(0, 100), pady=(70, 5))
         self.drop_role.grid(row = 8, column = 1, padx=(0, 0), pady=(130, 10))
     else:

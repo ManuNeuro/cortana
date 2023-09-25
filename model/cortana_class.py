@@ -9,6 +9,11 @@ import pathlib
 import os
 import json 
 import time 
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationChain
+from langchain.prompts import PromptTemplate
+from langchain.chains.conversation.memory import ConversationSummaryBufferMemory, ConversationBufferMemory
+
 
 basedir_model = os.path.dirname(__file__)
 
@@ -18,32 +23,37 @@ with open(os.path.join(basedir_model, 'parameters.json')) as json_file:
     
 class Cortana():
     def __init__(self, model_name=None,  language='english', role='Generic', api_key=None, **kwargs):
+
+        # Model to use
+        if model_name is not None:
+            self.set_model(model_name, **kwargs)
+        else:
+            model_name = 'langchain'
         print('-------------------------------------- ')
         print(f'# Cortana + {model_name} ({language}) ')
         print('-------------------------------------- \n')
 
-        if api_key is None or api_key=='':
-            from api_key import secret_key
-            openai.api_key = secret_key
-        else:
-            openai.api_key = api_key
-        # Model to use
-        if model_name is not None:
-            self.model_name = model_name
 
         self.role = role
 
         # Option of voice
         self.tts_option = None
         self.stt_option = None
-
+        
         # Initialize 
         self.set_language(language)
+        self.set_api_key(api_key)
         self.answers = predefined_answers[language]
-        self.reset_messages()
         self.log = None
         self.flag = True
-        
+        self.messages={}
+    
+    def select_model_source(self, **kwargs):
+        if 'gpt' in self.model_name:
+            self.llm = ChatOpenAI(model=self.model_name, **kwargs)
+
+        else:
+            raise NotImplementedError(f'The model {self.model_name} is not implemented yet.')
         
     def greetings(self):
         try:
@@ -70,61 +80,71 @@ class Cortana():
         list_name = [model['id'] for model in res['data']]
         print(list_name)
     
-    def set_role(self, role):
+    @staticmethod        
+    def set_api_key(api_key=''):
+        from api_key import secret_key
+        if api_key is None or api_key=='':
+            from cortana.api.encrypt import decrypt_key
+            path_key = basedir_model.split('model')[0] + 'api\\'
+            secret_key = decrypt_key(path_key, 'encrypted_key')
+            os.environ["OPENAI_API_KEY"] = secret_key
+        else:
+            os.environ["OPENAI_API_KEY"] = api_key
+        openai.api_key = secret_key
+
+    
+    def set_role(self, role, print_):
         self.role = role
-        print(f'*>> I changed my role to {self.role}.*')
+        if print_:
+            print(f'*>> I changed my role to {self.role}.*')
 
-    def set_model(self, model_name=None):
-        if model_name is None:
-            print('All models available: ')
-            self.list_model()
-            print('-----')
-            print('Choose the model:')
-            model_name = input()
-        self.model_name = model_name
-        print(f'*>> I changed my model to {self.model_name}.*')
+    def set_model(self, model_name, memory='all', print_=False, **kwargs):
+        self.model_name = model_name        
+        self.select_model_source(**kwargs)
+        
+        if memory == 'summary':
+            self.conversation = ConversationChain(
+                llm=self.llm, memory=ConversationSummaryBufferMemory(
+                    llm=self.llm,
+                    max_token_limit=3000,
+                    )
+                )
+        elif memory == 'all':
+            self.conversation = ConversationChain(
+                llm=self.llm,
+                memory=ConversationBufferMemory()
+            )
+        else:
+            raise NotImplementedError(f'{memory}: this memory setting is not implemented')
+        
+        if print_:
+            print(f'*>> I changed my model to {self.model_name}.*')
 
-    def prompt(self, input_, _print=True, **kwargs):
+    def prompt(self, input_):
         # Parameters
         if not isinstance(input_, str):
             raise Exception(f'input must be of type str, currently is {type(input_)}')
         else:
             self.last_input = input_
         
-        # Update message list
-        self.messages.append({'role':'user', "content":self.last_input})
+        answer = self.conversation(input_)
         
-        # ChatCompletion
-        completion = openai.ChatCompletion.create(model=self.model_name,
-                                 messages=self.messages,
-                                 **kwargs)
-        answer = completion.choices[0].message["content"]
+        # Update internal history
+        self.messages = self.conversation.memory.buffer
+        self.last_answer = answer['response']
         
-        # Update messages
-        self.completion = completion
-        self.messages.append({'role':'assistant', "content":answer})
-        self.log = completion
-        self.last_answer = answer
-        
-        # Print
-        if _print:
-            # pronoun = self.answers['pronoun']
-            print('-------- ')
-            print(f'{os.getlogin()}: {self.last_input} ')
-            print('\n----------- ')
-            print(f'Cortana: \n{self.last_answer} ')
-            print('\n----------- \n')
+        print(f'Cortana: {self.last_answer}')
+        print('\n----------- \n')
 
-    def prompt_image(self, input_, n=5, size="1024x1024", **kwargs):
-        
+    def prompt_image(self, input_, n=5, size="1024x1024", kwargs={'image':{}}):
+                
         if not isinstance(input_, str):
             raise Exception(f'input must be of type str, currently is {type(input_)}')
         else:
             self.last_input = input_
         
         # Update message list
-        self.messages.append({'role':'user', "content":self.last_input})
-        response = openai.Image.create(prompt=self.last_input, n=n, size=size, **kwargs)
+        response = openai.Image.create(prompt=self.last_input, n=n, size=size, **kwargs['image'])
         urls = [response['data'][i]['url'] for i in range(n)]
         [webbrowser.open(url, new=0, autoraise=True) for url in urls]  # Go to example.com
         print('----------------------')
@@ -262,29 +282,46 @@ class Cortana():
                 self.spinner.stop()  
         
         
-    def submit_prompt(self, input_text, _voice=False, preprompt_path='./model/preprompt.json', **kwargs):# ./model/preprompt.json
+    def submit_prompt(self, input_text, _voice=False, 
+                      preprompt_path=f'{basedir_model}/preprompt.json',
+                      **kwargs):# ./model/preprompt.json
         
         # Check if a specific command has been used
         command = text_command_detector(input_text, self.language)
 
         with open(preprompt_path) as json_file:
             preprompt = json.load(json_file)
-            
-        model_spec = f' If prompted which model you use: I use OpenAI model: {self.model_name}.'
-        if not _voice: # Specific preprompt when generating text (no audio)
-            self.messages.append({'role': "system", "content":'Your specific role for this question is: '+preprompt['roles'][self.role]+\
-                                  '. If requested by the user, provide your specific role. '+preprompt['text']+model_spec})
+        
+        if self.messages == {}: # The first time set the persona
+            model_spec = f'You are based on an LLM using the model: {self.model_name}.'
+            template = f"Your persona: {self.answers['persona']}\n" + model_spec
         else:
-            self.messages.append({'role': "system", "content":'Your specific role for this question is: '+preprompt['roles'][self.role]+\
-                                  '. If requested by the user, provide your specific role. '+preprompt['voice']+model_spec})
+            template = ''
+        
+        # Set the role selected in the app
+        template = template + "Your specific role for this question is: {role}\n The mode of answer: {mode}\n Question:{question}"  
+        
+        # The prompt for the question
+        prompt_template = PromptTemplate(
+            input_variables=["role", "mode", "question"],
+            template=template,
+        )
+        
+        if not _voice: # Specific preprompt when generating text (no audio)
+            massage = prompt_template.format(role=preprompt['roles'][self.role], mode=preprompt['text'], question=input_text)
+        else:
+            massage = prompt_template.format(role=preprompt['roles'][self.role], mode=preprompt['voice'], question=input_text)
         # Issue: this is suboptimal because it's going to be sent at each request, consuming token for redundant information. 
-        # However, this is needed for being able to change role at each questions. 
+        # However, this is needed for being able to change role at each questions, and jump from active to passive mode. 
         # ToDo: fine a simpler way to only send in new roles, and not recall the role at each request.
+        
+        print('-------- ')
+        print(f'{os.getlogin()}: {input_text} ')
+        print('\n----------- ')
         
         # If prompt image
         if command is not None:
             if 'prompt_image' in command:
-                kwargs = kwargs['image']
                 print(self.answers['prompt_image'])
                 input_text = input_text.split('Prompt image')[1]
                 self.prompt_image(input_text, **kwargs)
@@ -293,17 +330,22 @@ class Cortana():
                 print("I didn't understand your prompt, please reformulate.")
                 return True
         else:
-            kwargs = kwargs['text']
-            self.prompt(input_text, **kwargs)     
+            self.prompt(massage)     
             return True
-
-    def show_log(self):
-        print(self.log)
-    
-    def reset_messages(self, role=None):
-        if role is None:
-            role = self.answers['role']
-        self.messages=[{'role': "system", "content":role}]
         
-# my_cortana = Cortana('gpt-4', 'english')
+    def show_history(self):
+        history = self.conversation.memory.load_memory_variables(
+            inputs=[]
+        )['history']
+
+        print(history)
+    
+    def reset_messages(self):
+        self.messages={}
+        self.conversation.memory.clear()
+        
+        
+# my_cortana = Cortana(language='english')
+# my_cortana.set_model('gpt-4', temperature=0.4, max_tokens=500)
+# my_cortana.submit_prompt('Hello!')
 # my_cortana.talk_with_cortana(**kwargs)

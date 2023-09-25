@@ -101,7 +101,7 @@ class CortanaApp(ctk.CTk):
         launch_parameter(self)  
     
     def launch_cortana(self, language, api_key, role, **kwargs):
-        self.my_cortana = Cortana(self.model_name, language, api_key=api_key, role=role, **kwargs)
+        self.my_cortana = Cortana(self.model_name, language, api_key=api_key, role=role, **kwargs['text'])
         if self.gif is not None:
             self.gif.unload()
             self.gif = None
@@ -195,23 +195,32 @@ class CortanaApp(ctk.CTk):
     
     def change_role(self, role, event=True):
         self.role = role
-        if event:
-            # ctk.messagebox.showinfo(
-            #     title="Model Selection",
-            #     message=f"Selected role: {self.role}"
-            # )
-            if hasattr(self, "my_cortana"):
-                self.my_cortana.set_role(self.role)
+        if hasattr(self, "my_cortana"):
+            if event:
+                # ctk.messagebox.showinfo(
+                #     title="Model Selection",
+                #     message=f"Selected role: {self.role}"
+                # )
+                self.my_cortana.set_role(self.role, print_=True)
+            else:
+                self.my_cortana.set_role(self.role, print_=False)
+
 
     def change_model(self, model, event=True):
         self.model_name = model
-        if event:
-            # ctk.messagebox.showinfo(
-            #     title="Model Selection",
-            #     message=f"Selected model: {self.model_name}"
-            # )
-            if hasattr(self, "my_cortana"):
-                self.my_cortana.set_model(self.model_name)
+        
+        # ToDo: add parameter memory type: 'all' or 'summary'
+        
+        if hasattr(self, "my_cortana"):
+            if event:
+                # ctk.messagebox.showinfo(
+                #     title="Model Selection",
+                #     message=f"Selected model: {self.model_name}"
+                # )            
+                self.my_cortana.set_model(self.model_name, print_=True)
+            else:
+                self.my_cortana.set_model(self.model_name, print_=False)
+
     
     def remove_from_grid(self, names):
         attribute_names = np.array([attr for attr in self.__dict__.keys()])
