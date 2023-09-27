@@ -240,24 +240,43 @@ def regular_app_buttons(self):
 
     self.button_enter.grid(row = 10, column = 0, columnspan=11, sticky='sew', padx=(10, 10), pady=(0, 10))
 
-
+def remove_buttons(self):
+    self.button_enter.grid_remove()
+    self.drop_model.grid_remove()
+    self.label_model.grid_remove()
+    self.button_talk.grid_remove()
+    self.button_preprompt.grid_remove()
+    self.check_autoreload.grid_remove()
+    self.button_param.grid_remove()
+    self.drop_model.grid_remove()
+    self.drop_role.grid_remove()
+    self.label_model.grid_remove()
+    self.label_role.grid_remove()
+    self.button_api.grid_remove()
+    self.button_fr.grid_remove()
+    self.button_en.grid_remove()
+    self.button_load.grid_remove()
+    self.button_new.grid_remove()
+    self.button_file.grid_remove()
+    self.button_folder.grid_remove()
 
 def create_apikey(self):
-    self.button_api.place_forget()
-    self.api_label = ctk.CTkLabel(self, text="Enter API key from OpenAi")
-    self.api_label.pack(pady=15, anchor=ctk.CENTER)
-    self.api_entry = ctk.Entry(self)
-    self.api_entry.pack(ipadx=60, pady=10, anchor=ctk.CENTER)#ipadx=40, padx=35, pady=160, anchor='sw')
-    self.button_ok = ctk.CTkButton(self, text="OK", command=lambda:remove_api(self))
-    self.button_ok.pack(pady=10, anchor=ctk.CENTER)#padx=150, pady=160, anchor='w')
-
+    remove_buttons(self)
+    self.api_label = ctk.CTkLabel(self, text="Enter API key from OpenAi", text_color='cyan', bg_color="#13273a")
+    self.api_label.grid(row = 8, column = 0, padx=(20, 0), pady=(5, 5))
+    self.api_entry = ctk.CTkEntry(self, bg_color="#13273a", width=300)
+    self.api_entry.grid(row = 8, column = 0, padx=(20, 0), pady=(70, 10))#ipadx=40, padx=35, pady=160, anchor='sw')
+    self.button_ok = ctk.CTkButton(self, text="OK", command=lambda:remove_api(self), width=10, height=10)
+    self.button_ok.grid(row = 8, column = 1, padx=(5, 5), pady=(70, 10))#padx=150, pady=160, anchor='w')
+    
 def remove_api(self):
     self.api_key = self.api_entry.get()
     encrypt_key(self.api_key, path=self.folder_api)
-    self.api_label.pack_forget()
-    self.api_entry.pack_forget()
-    self.button_ok.pack_forget()
+    self.api_label.grid_remove()
+    self.api_entry.grid_remove()
+    self.button_ok.grid_remove()
     self.create_button_api()
+    self.regular_app_layout()
     
 def active_mode(self):
     # Set background image

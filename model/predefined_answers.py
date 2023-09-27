@@ -37,7 +37,8 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                              'activated_exit':'Cortana Shut Down',
                                              'idle_exit':'Shut Down',
                                              'idle_start':'Activate',
-                                             'prompt_image':"Prompt image"},
+                                             'prompt_image':"Prompt image",
+                                             'langchain_tools':"Prompt tools"},
                                  'pronoun':'Me',
                                  'listening':"I am listening...",
                                  'protocol_terminated':'          ---- Protocol Terminated ----'},
@@ -67,7 +68,8 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                           'activated_exit':'Cortana Fermeture',
                                           'idle_exit':'Fermeture',
                                           'idle_start':'Activation',
-                                          'prompt_image':"Générer image"},
+                                          'prompt_image':"Générer image",
+                                          'langchain_tools':"Prompt tools"},
                               'pronoun':'Moi',
                               'listening':"J'écoute...",
                               'protocol_terminated':'          ---- Protocole terminé ----',
@@ -93,7 +95,7 @@ def text_command_detector(text, language):
     commands = predefined_answers[language]['commands']
     for command, text_command in commands.items():
         if command_condition(text, text_command):
-            return command
+            return command, text_command
         
-    return None
+    return None, None
 

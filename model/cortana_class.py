@@ -3,6 +3,7 @@ import openai
 from cortana.model.text_to_audio import text_to_speech_pyttsx3, text_to_speech_TTS, text_to_speech_gtts
 from cortana.model.audio_to_text import speech_to_text, stt_whisper, wait_for_call
 from cortana.model.predefined_answers import predefined_answers, text_command_detector
+from cortana.model.external_classes import DDG, PythonREPL
 import webbrowser
 import numpy as np
 import pathlib
@@ -11,8 +12,36 @@ import json
 import time 
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
+from langchain.memory import ConversationTokenBufferMemory
 from langchain.prompts import PromptTemplate
-from langchain.chains.conversation.memory import ConversationSummaryBufferMemory, ConversationBufferMemory
+from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
+
+from langchain.utilities import DuckDuckGoSearchAPIWrapper, WikipediaAPIWrapper
+from langchain.agents import load_tools
+from langchain.agents import initialize_agent, Tool
+from langchain.agents import AgentType
+
+# import tkinter
+# import matplotlib
+# matplotlib.use('TkAgg')
+# import matplotlib.pyplot as plt
+
+tools = [
+    Tool(
+        name = "Python REPL",
+        func=PythonREPL().run,
+        description="useful for when you need to use python to answer a question. You should input python code"
+    ),
+    Tool(
+        name='wikipedia',
+        func= WikipediaAPIWrapper().run,
+        description="Useful for when you need to look up a topic, country or person on wikipedia"
+    ),
+    Tool(
+        name='DuckDuckGo Search',
+        func= DDG.run,
+        description="Useful for when you need to do a search on the internet to find information that another tool can't find. be specific with your input."
+)]
 
 
 basedir_model = os.path.dirname(__file__)
@@ -20,9 +49,17 @@ basedir_model = os.path.dirname(__file__)
 with open(os.path.join(basedir_model, 'parameters.json')) as json_file:
     kwargs = json.load(json_file)
     
-    
 class Cortana():
     def __init__(self, model_name=None,  language='english', role='Generic', api_key=None, **kwargs):
+
+        # Initialize 
+        self.set_language(language)
+        self.set_api_key(api_key)
+        self.answers = predefined_answers[language]
+        self.log = None
+        self.flag = True
+        self.messages={}
+        self.role = role        
 
         # Model to use
         if model_name is not None:
@@ -31,27 +68,19 @@ class Cortana():
             model_name = 'langchain'
         print('-------------------------------------- ')
         print(f'# Cortana + {model_name} ({language}) ')
-        print('-------------------------------------- \n')
+        print('-------------------------------------- ')
+        print('                 ~*An app by ManuNeuro*')
 
-
-        self.role = role
 
         # Option of voice
         self.tts_option = None
         self.stt_option = None
         
-        # Initialize 
-        self.set_language(language)
-        self.set_api_key(api_key)
-        self.answers = predefined_answers[language]
-        self.log = None
-        self.flag = True
-        self.messages={}
     
     def select_model_source(self, **kwargs):
+        
         if 'gpt' in self.model_name:
             self.llm = ChatOpenAI(model=self.model_name, **kwargs)
-
         else:
             raise NotImplementedError(f'The model {self.model_name} is not implemented yet.')
         
@@ -82,15 +111,14 @@ class Cortana():
     
     @staticmethod        
     def set_api_key(api_key=''):
-        from api_key import secret_key
         if api_key is None or api_key=='':
             from cortana.api.encrypt import decrypt_key
             path_key = basedir_model.split('model')[0] + 'api\\'
-            secret_key = decrypt_key(path_key, 'encrypted_key')
-            os.environ["OPENAI_API_KEY"] = secret_key
+            api_key = decrypt_key(path_key, 'encrypted_key')
+            os.environ["OPENAI_API_KEY"] = api_key
         else:
             os.environ["OPENAI_API_KEY"] = api_key
-        openai.api_key = secret_key
+        openai.api_key = api_key
 
     
     def set_role(self, role, print_):
@@ -103,19 +131,29 @@ class Cortana():
         self.select_model_source(**kwargs)
         
         if memory == 'summary':
+            self.memory = ConversationSummaryBufferMemory(
+                            llm=self.llm,
+                            max_token_limit=3000,
+                            )
             self.conversation = ConversationChain(
-                llm=self.llm, memory=ConversationSummaryBufferMemory(
-                    llm=self.llm,
-                    max_token_limit=3000,
-                    )
+                llm=self.llm, memory=self.memory
                 )
         elif memory == 'all':
+            self.memory = ConversationTokenBufferMemory(llm=self.llm, 
+                                                        max_token_limit=8000)
             self.conversation = ConversationChain(
                 llm=self.llm,
-                memory=ConversationBufferMemory()
+                memory=self.memory
             )
         else:
             raise NotImplementedError(f'{memory}: this memory setting is not implemented')
+        
+        # tools.append(
+        #     Tool(name='Prompt question',
+        #     func= self.conversation,
+        #     description="To answer a regular question which doesn't necessitate internet of specific tools"
+        #         )
+        #     )
         
         if print_:
             print(f'*>> I changed my model to {self.model_name}.*')
@@ -136,7 +174,7 @@ class Cortana():
         print(f'Cortana: {self.last_answer}')
         print('\n----------- \n')
 
-    def prompt_image(self, input_, n=5, size="1024x1024", kwargs={'image':{}}):
+    def prompt_image(self, input_, n=5, size="1024x1024", **kwargs):
                 
         if not isinstance(input_, str):
             raise Exception(f'input must be of type str, currently is {type(input_)}')
@@ -144,7 +182,7 @@ class Cortana():
             self.last_input = input_
         
         # Update message list
-        response = openai.Image.create(prompt=self.last_input, n=n, size=size, **kwargs['image'])
+        response = openai.Image.create(prompt=self.last_input, n=n, size=size, **kwargs)
         urls = [response['data'][i]['url'] for i in range(n)]
         [webbrowser.open(url, new=0, autoraise=True) for url in urls]  # Go to example.com
         print('----------------------')
@@ -280,20 +318,41 @@ class Cortana():
         if hasattr(self, 'spinner'):
             if self.spinner.running:           
                 self.spinner.stop()  
+      
+    def get_search_agent(self, input_text):
+
+        # create and return the chat agent
+        agent = initialize_agent(
+            tools=tools,
+            llm=self.llm,
+            agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+            verbose=True,
+            memory=ConversationSummaryBufferMemory(llm=self.llm, max_token_limit=1024, memory_key="chat_history"),
+            max_iterations=10,
+            min_iterations=5
+        )    
         
+        output = agent(input_text)['output']
         
+        self.messages = self.conversation.memory.buffer
+        self.last_answer = output
+        
+        print(f'Cortana: {self.last_answer}')
+        print('\n----------- \n')
+       
     def submit_prompt(self, input_text, _voice=False, 
-                      preprompt_path=f'{basedir_model}/preprompt.json',
+                      preprompt_path=f'{basedir_model}\\preprompt.json',
                       **kwargs):# ./model/preprompt.json
         
         # Check if a specific command has been used
-        command = text_command_detector(input_text, self.language)
 
         with open(preprompt_path) as json_file:
             preprompt = json.load(json_file)
         
         if self.messages == {}: # The first time set the persona
-            model_spec = f'You are based on an LLM using the model: {self.model_name}.'
+            tool_names = [tool.name for tool in tools]
+            tool_names.append('Prompt image')
+            model_spec = f'You are based on an LLM using the model: {self.model_name}. You have multiple tools at your disposal, that the user can prompt: {tool_names}.'
             template = f"Your persona: {self.answers['persona']}\n" + model_spec
         else:
             template = ''
@@ -306,8 +365,22 @@ class Cortana():
             input_variables=["role", "mode", "question"],
             template=template,
         )
+
+        # Check if a specific command is requested        
+        if '*' in self.role: 
+            # The command is requested in the role of the bot
+            command, text_command = text_command_detector(preprompt['roles'][self.role], self.language)
+        else:
+            # The command is requested in the text by user
+            command, text_command = text_command_detector(input_text, self.language)
+            
+        # If the command is requested directly in the text, remove it
+        if text_command is not None:
+            if text_command in input_text:
+                input_text = input_text.split(text_command)[1]
         
-        if not _voice: # Specific preprompt when generating text (no audio)
+        # Specific mode of answer when generating output (text or voice)
+        if not _voice: 
             massage = prompt_template.format(role=preprompt['roles'][self.role], mode=preprompt['text'], question=input_text)
         else:
             massage = prompt_template.format(role=preprompt['roles'][self.role], mode=preprompt['voice'], question=input_text)
@@ -319,17 +392,19 @@ class Cortana():
         print(f'{os.getlogin()}: {input_text} ')
         print('\n----------- ')
         
-        # If prompt image
+        
         if command is not None:
             if 'prompt_image' in command:
-                print(self.answers['prompt_image'])
-                input_text = input_text.split('Prompt image')[1]
+                print('Cortana: ', self.answers['prompt_image'])
                 self.prompt_image(input_text, **kwargs)
                 return True
+            elif 'langchain_tools' in command:
+                self.get_search_agent(massage)
             else:
                 print("I didn't understand your prompt, please reformulate.")
                 return True
         else:
+            # Regular chat
             self.prompt(massage)     
             return True
         
@@ -345,7 +420,7 @@ class Cortana():
         self.conversation.memory.clear()
         
         
-# my_cortana = Cortana(language='english')
+# my_cortana = Cortana(language='french')
 # my_cortana.set_model('gpt-4', temperature=0.4, max_tokens=500)
-# my_cortana.submit_prompt('Hello!')
+# my_cortana.submit_prompt('Write down the Caushy-Shwartz inequality in n dimensions')
 # my_cortana.talk_with_cortana(**kwargs)

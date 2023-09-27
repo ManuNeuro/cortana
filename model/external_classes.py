@@ -21,7 +21,61 @@ from customtkinter import CTkTextbox, CTkImage, CTkFont, filedialog, CTkLabel, C
 import customtkinter as ctk
 
 
+from io import StringIO
+import sys
+from typing import Dict, Optional
+
+from itertools import islice
+from duckduckgo_search import DDGS
+
 basedir_model = os.path.dirname(__file__)
+
+class DDG(DDGS):
+    def run (query:str):
+        '''
+        "snippet": result["body"],
+        "title": result["title"],
+        "link": result["href"],
+        '''
+        results = DDGS().text(query)
+        generator = [result['body'] for result in results]
+
+        # Get the first three results from the generator
+        first_three_results = list(islice(generator, 3))
+        return first_three_results
+
+
+def formating(command: str):
+    if "python" in command:
+        command = command.split("python")[1]
+        command = command.split("```")[0]
+    elif "```" in command:
+        command = command.split("```")[1]
+        command = command.split("```")[0]
+    return command
+
+class PythonREPL:
+    """Simulates a standalone Python REPL."""
+
+    def __init__(self):
+        pass        
+
+    def run(self, command: str) -> str:
+        """Run command and returns anything printed."""
+        command = formating(command)
+        # sys.stderr.write("EXECUTING PYTHON CODE:\n---\n" + command + "\n---\n")
+        old_stdout = sys.stdout
+        sys.stdout = mystdout = StringIO()
+        try:
+            exec(command, globals())
+            sys.stdout = old_stdout
+            output = mystdout.getvalue()
+        except Exception as e:
+            sys.stdout = old_stdout
+            output = str(e)
+        # sys.stderr.write("PYTHON OUTPUT: \"" + output + "\"\n")
+        return output
+
 
 class ImageLabel(ctk.CTkLabel):
     

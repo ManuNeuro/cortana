@@ -217,9 +217,9 @@ class CortanaApp(ctk.CTk):
                 #     title="Model Selection",
                 #     message=f"Selected model: {self.model_name}"
                 # )            
-                self.my_cortana.set_model(self.model_name, print_=True)
+                self.my_cortana.set_model(self.model_name, print_=True, **kwargs)
             else:
-                self.my_cortana.set_model(self.model_name, print_=False)
+                self.my_cortana.set_model(self.model_name, print_=False, **kwargs)
 
     
     def remove_from_grid(self, names):
