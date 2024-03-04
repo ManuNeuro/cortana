@@ -22,7 +22,7 @@
         }
     },
     "app": {
-        "markdown": "C:\\Program Files\\MarkText\\MarkText.exe",
+        "markdown": "C://Users//Manu//AppData//Local//Programs//Typora//Typora.exe",
         "openParam": "notepad"
     },
     "//comment": "Here is a link to double check json format issues: https://elmah.io/tools/json-formatter/"

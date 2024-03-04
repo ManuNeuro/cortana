@@ -27,25 +27,26 @@ with open(os.path.join(directory, 'parameters.json')) as json_file:
     
 markdown = kwargs['app']['markdown']
 
+# Dropdown menu options_model
+options_model = [
+    "gpt-4",
+    "gpt-4-0125-preview",
+    "gpt-4-turbo-preview",
+    "gpt-3.5-turbo",
+    "gpt-3.5-turbo-16k", 
+]
+
 def create_dropdown_model(self, landing_page=False):
     
     if landing_page:
 
-        # Dropdown menu options
-        options = [
-            "gpt-4",
-            "gpt-4-32k",
-            "gpt-3.5-turbo",
-            "gpt-3.5-turbo-16k",
-        ]
-          
         # Create Dropdown menu
         self.label_model = ctk.CTkLabel(self, text="Model", text_color='cyan', bg_color="#13273a", height=18)
-        self.drop_model = ctk.CTkComboBox(self, state="readonly", values=options, bg_color='#13273a', command=self.change_model) 
+        self.drop_model = ctk.CTkComboBox(self, state="readonly", values=options_model, bg_color='#13273a', command=self.change_model) 
         ToolTip(self.drop_model, msg="Select the LLM model you want to use. 16k and 32k indicate the number of token in memory.", delay=1.0)
 
-        self.drop_model.set(options[0])
-        self.change_model(options[0], False)
+        self.drop_model.set(options_model[0])
+        self.change_model(options_model[0], False)
         self.label_model.grid(row = 8, column = 0, padx=(0, 100), pady=(70, 5))
         self.drop_model.grid(row = 8, column = 0, padx=(0, 0), pady=(130, 10))
     else:
@@ -53,22 +54,22 @@ def create_dropdown_model(self, landing_page=False):
         self.drop_model.grid(row = 8, column = 0, padx=(0, 0), pady=(60, 10))
 
 def create_dropdown_role(self, landing_page=False):
-    # Dropdown menu options
+    # Dropdown menu options_model
     if landing_page:
 
         with open(self.prepromt_path) as json_file:
             kwargs = json.load(json_file)
         roles = kwargs['roles']
-        options = [role for role in roles.keys()]
+        options_model = [role for role in roles.keys()]
         
         # Create Dropdown menu
         self.label_role = ctk.CTkLabel(self, text="Role", text_color='cyan', bg_color="#13273a", height=18)
-        self.drop_role = ctk.CTkComboBox(self, state="readonly", values=options, bg_color='#13273a', command=self.change_role) 
+        self.drop_role = ctk.CTkComboBox(self, state="readonly", values=options_model, bg_color='#13273a', command=self.change_role) 
         ToolTip(self.drop_role, msg="Select the role you want the AI to play. Check the preprompt button to know what the roles are.\n"\
                                     "You can add any role you want in the json, it will automatically add the role name in the list", delay=1.0)
 
-        self.drop_role.set(options[0])
-        self.change_role(options[0], False)
+        self.drop_role.set(options_model[0])
+        self.change_role(options_model[0], False)
         self.label_role.grid(row = 8, column = 1, padx=(0, 100), pady=(70, 5))
         self.drop_role.grid(row = 8, column = 1, padx=(0, 0), pady=(130, 10))
     else:
@@ -142,10 +143,10 @@ def load_from_file(self):
     sp.Popen([markdown, filename])
     last_messages = load_markdown_file(filename)
     self.filename = os.path.basename(filename).split('.md')[0]
-    self.my_cortana.messages.append({'role':'user', "content":last_messages})
+    self.my_cortana.reset_messages()
+    self.my_cortana.loaded_message = last_messages
     self.markdown_output = MarkdownOutput(self.filename, last_messages)
     sys.stdout = self.markdown_output
-
 
 def regular_app_buttons(self):
     
@@ -266,17 +267,22 @@ def create_apikey(self):
     self.api_label.grid(row = 8, column = 0, padx=(20, 0), pady=(5, 5))
     self.api_entry = ctk.CTkEntry(self, bg_color="#13273a", width=300)
     self.api_entry.grid(row = 8, column = 0, padx=(20, 0), pady=(70, 10))#ipadx=40, padx=35, pady=160, anchor='sw')
-    self.button_ok = ctk.CTkButton(self, text="OK", command=lambda:remove_api(self), width=10, height=10)
+    self.button_ok = ctk.CTkButton(self, text="OK", command=lambda:remove_api(self, given=True), width=10, height=10)
     self.button_ok.grid(row = 8, column = 1, padx=(5, 5), pady=(70, 10))#padx=150, pady=160, anchor='w')
-    
-def remove_api(self):
-    self.api_key = self.api_entry.get()
-    encrypt_key(self.api_key, path=self.folder_api)
+    self.button_cancel_api = ctk.CTkButton(self, text="Cancel", command=lambda:remove_api(self, given=False), width=10, height=10)
+    self.button_cancel_api.grid(row = 8, column = 0, padx=(5, 5), pady=(130, 10))#padx=150, pady=160, anchor='w')
+
+def remove_api(self, given=True):
+    if given:
+        self.api_key = self.api_entry.get()
+        encrypt_key(self.api_key, path=self.folder_api)
+        
     self.api_label.grid_remove()
     self.api_entry.grid_remove()
     self.button_ok.grid_remove()
-    self.create_button_api()
-    self.regular_app_layout()
+    self.button_cancel_api.grid_remove()
+    create_button_api(self)
+    regular_app_layout(self)
     
 def active_mode(self):
     # Set background image
