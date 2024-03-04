@@ -42,7 +42,6 @@ Once I updated the STT and TTS, I will be recording one of **the first podcasts 
 
 **Done:**
 
-- [x] Simplification of app launching for users
 - [x] Adding preprompt options (persona, text, voice, role)
 - [x] Adding API key manager + encryption
 - [x] Adding a light icon when Cortana is in the active mode
@@ -53,18 +52,28 @@ Once I updated the STT and TTS, I will be recording one of **the first podcasts 
 - [x] Adding an external window for active mode.
 - [x] Cleaning and factoring the codes
 - [x] Speeding up active mode
+- [x] Cleaning stt and tts, now it's taking less time
+- [x] Adding langchain: internet access
+- [x] Adding langchain: python REPL to run code
+- [x] Adding langchain: python to plot figures
 
-**In the future:**
+**Next steps:**
+- [ ] Merging all functionalities in tools:
+  - [ ] Create a tool chatbot
+  - [ ] Create a tool image
+- [ ] Adding local file access
+- [ ] Adding csv agent
 
+ **In the future:**
 - [ ] Test and debug functionalities
 - [ ] Adding markdown display in active mode
 - [ ] Adding a voice and recording button in passive mode
-- [ ] Adding langchain: internet access
-- [ ] Adding langchain: python REPL to run code
 - [ ] Adding Local open-source LLM models
 
 # Known bugs
-- In active mode, the commands "Deactivate" and "ShutDown" do not work.
-- In active idle mode, the command activate does not work.
-- While using double screens, moving the app from one to another messes up with the layout.
-- API Key button is not working anymore
+- [ ] Active mode not working since langchain update
+- [ ] Memory not working when loading files in tools* mode
+- [ ] In active mode, the commands "Deactivate" and "ShutDown" do not work.
+- [ ] In active idle mode, the command activate does not work.
+- [ ] While using double screens, moving the app from one to another messes up with the layout.
+- [x] API Key button is not working anymore 
