@@ -20,7 +20,7 @@ import numpy as np
 import customtkinter as ctk
 from customtkinter import CTkTextbox, CTkImage, CTkFont, filedialog
 from PIL import Image, ImageSequence
-
+    
 from cortana.api.encrypt import decrypt_key
 from cortana.model.external_classes import ToplevelWindow, ImageLabel, MarkdownOutput
 from cortana.model.cortana_class import Cortana
@@ -39,7 +39,7 @@ openParam = kwargs['app']['openParam']
 
 try:
     from ctypes import windll  # Only exists on Windows.
-    myappid = "dorean.cortana.gpt.0.3"
+    myappid = "dorean.cortana.gpt.0.9"
     windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 except ImportError:
     pass

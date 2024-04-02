@@ -68,7 +68,7 @@ predefined_answers = {'english':{'error':"Sorry, I did not understood your reque
                                           'activated_exit':'Cortana Fermeture',
                                           'idle_exit':'Fermeture',
                                           'idle_start':'Activation',
-                                          'prompt_image':"Générer image",
+                                          'prompt_image':"Prompt image",
                                           'langchain_tools':"Prompt tools"},
                               'pronoun':'Moi',
                               'listening':"J'écoute...",

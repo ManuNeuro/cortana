@@ -10,6 +10,7 @@ import pathlib
 import os
 import json 
 import time 
+from openai import OpenAI
 from langchain_openai import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationTokenBufferMemory
@@ -139,7 +140,7 @@ class Cortana():
         else:
             os.environ["OPENAI_API_KEY"] = api_key
         openai.api_key = api_key
-
+        
     
     def set_role(self, role, print_):
         self.role = role
@@ -149,7 +150,8 @@ class Cortana():
     def set_model(self, model_name, memory='all', print_=False, **kwargs):
         self.model_name = model_name        
         self.select_model_source(**kwargs)
-        
+        self.client = OpenAI()
+
         if memory == 'summary':
             self.memory = ConversationSummaryBufferMemory(
                             llm=self.llm,
@@ -191,7 +193,7 @@ class Cortana():
         self.messages = self.conversation.memory.buffer
         self.last_answer = answer['response']
         
-        print(f'Cortana: {self.last_answer}')
+        print(f'Cortana: \n{self.last_answer}')
         print('\n----------- \n')
 
     def prompt_image(self, input_, n=1, size="1024x1024", **kwargs):
@@ -205,16 +207,17 @@ class Cortana():
             self.last_input = input_
         
         # Update message list
-        response = openai.Image.create(model="dall-e-3",
-                                        prompt=self.last_input, n=n, size=size)
-        urls = [response['data'][i]['url'] for i in range(n)]
+        
+        response = self.client.images.generate(model="dall-e-3",
+                                         prompt=self.last_input, n=n, size=size)
+        urls = [response.data[i].dict()['url'] for i in range(n)]
         [webbrowser.open(url, new=0, autoraise=True) for url in urls]  # Go to example.com
         print('----------------------')
         print(f'Prompt for the image: {self.last_input} ')
         print('----------------------')
         print('I generated image(s) at the following url(s):')
-        for url in urls:
-            print(str(url)+'')
+        for i, url in enumerate(urls):
+            print("- image #{i}](" + str(url)+')\n')
         print('\n----------- ')
         print('$~~~~~~~~~~~$')
         # self.messages.append({'role':'assistant', "content":urls})
@@ -439,7 +442,7 @@ class Cortana():
         # ToDo: fine a simpler way to only send in new roles, and not recall the role at each request.
         
         print('-------- ')
-        print(f'{os.getlogin()}: {input_text} ')
+        print(f'{os.getlogin()}: \n{input_text} ')
         print('-------- \n')
         
         
